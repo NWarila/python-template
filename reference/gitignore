@@ -1,45 +1,60 @@
-# Deny-all — every tracked file must be explicitly allowed.
-*
+**
+# Allow the allowlist itself so tracked scope stays auditable.
+!/.gitignore
 
-# Git metadata
-!.gitignore
-!.gitattributes
+# Allow git attributes so normalization rules stay versioned.
+!/.gitattributes
 
-# Project configuration
-!pyproject.toml
-!LICENSE
-!README.md
-!.markdownlint-cli2.jsonc
-!.pre-commit-config.yaml
+# Allow core project configuration and documentation.
+!/pyproject.toml
+!/LICENSE
+!/README.md
+!/uv.lock
+!/.markdownlint-cli2.jsonc
+!/.pre-commit-config.yaml
 
-# Source code
-!src/
-!src/**
-!tests/
-!tests/**
+# Allow the org-standard automation and editor directories.
+!/.github/
+!/.github/**
+!/.vscode/
+!/.vscode/**
 
-# Scripts (managed by python-template)
-!scripts/
-!scripts/**
+# Allow the standard Python source and test roots.
+!/src/
+!/src/**
+!/tests/
+!/tests/**
+!/scripts/
+!/scripts/**
 
-# GitHub
-!.github/
-!.github/**
+# Allow common documentation roots.
+!/docs/
+!/docs/**
 
-# VSCode
-!.vscode/
-!.vscode/**
+# Add any repo-specific tracked roots below this line.
+# !/data/
+# !/data/**
+# !/assets/
+# !/assets/**
+# !/templates/
+# !/templates/**
 
-# Ignore generated artifacts even if inside allowed directories
+# Ignore generated artifacts even inside allowed directories.
 __pycache__/
 *.py[cod]
 *$py.class
 *.egg-info/
 dist/
+build/
 .venv/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
+.tox/
+.nox/
+.coverage
+coverage.json
+coverage.*
+htmlcov/
 .tmp/
 pytest-cache-files-*/
-coverage.json
