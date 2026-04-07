@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import glob
-import os
 import shutil
 import subprocess
 import sys
@@ -125,7 +124,8 @@ def _print_summary(
     print(f"  {section_title}")
     print(bar)
     header = f"  {'Check':<{col_name}}  {'Result':<{col_status}}  {'Duration':<{col_dur}}"
-    sep = f"  {'\u2500' * col_name}  {'\u2500' * col_status}  {'\u2500' * col_dur}"
+    dash = "\u2500"
+    sep = f"  {dash * col_name}  {dash * col_status}  {dash * col_dur}"
     print(header)
     print(sep)
     for name, status, dur in results:
@@ -162,7 +162,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    skips: set[str] = set(s.lower() for s in args.skip)
+    skips: set[str] = {s.lower() for s in args.skip}
 
     # Auto-skip check_package when there is no [build-system]
     if not _has_build_system():
@@ -202,7 +202,7 @@ def main() -> int:
         externals.append((
             "shellcheck",
             "shellcheck",
-            ["shellcheck"] + sh_files,
+            ["shellcheck", *sh_files],
         ))
     else:
         externals.append(("shellcheck", "shellcheck", None))
@@ -213,7 +213,7 @@ def main() -> int:
         externals.append((
             "markdownlint",
             "markdownlint-cli2",
-            ["markdownlint-cli2"] + md_files,
+            ["markdownlint-cli2", *md_files],
         ))
     else:
         externals.append(("markdownlint", "markdownlint-cli2", None))

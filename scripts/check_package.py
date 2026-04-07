@@ -60,7 +60,8 @@ def main() -> int:
 
         dist_files = glob.glob("dist/*")
         if not dist_files:
-            print("::error::No dist files produced" if os.environ.get("GITHUB_ACTIONS") == "true" else "ERROR: No dist files produced")
+            msg = "::error::No dist files produced" if os.environ.get("GITHUB_ACTIONS") == "true" else "ERROR: No dist files produced"
+            print(msg)
             return 1
 
         rc = _run(["twine", "check", "--strict", *dist_files], "Twine Check")

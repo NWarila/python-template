@@ -1,3 +1,10 @@
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[tool.setuptools]
+packages = []
+
 [project]
 name = "python-template"
 version = "1.0.0"
