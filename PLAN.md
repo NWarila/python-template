@@ -145,6 +145,8 @@ Every Python repo that adopts the standard should have:
 - A declared Python support range
 - A clear source layout
 - A test location
+- An org-standard `.gitignore` that starts with `**` and explicitly allowlists tracked roots
+- An org-standard `.gitattributes` baseline aligned with `.github`
 - Synced `.github/scripts/` from `python-template`
 - A `.pre-commit-config.yaml`
 - A CI workflow that delegates to the shared reusable workflow or mirrors its
@@ -334,13 +336,14 @@ to preserve repo-specific content:
 
 ### Reference-only starters
 
-These ship as examples for new repo setup but are not overwritten after initial
-creation:
+These define mandatory org-standard starting points for new repos, but are not
+auto-overwritten after initial creation in V1 because repo-specific extensions
+still need explicit review:
 
 - `reference/pyproject.toml`
 - `reference/repo-ci.yml`
-- `reference/gitignore`
-- `reference/gitattributes`
+- `reference/gitignore` - starts with `**` and uses an explicit allowlist model
+- `reference/gitattributes` - comment-rich normalization and diff baseline aligned with `.github`
 
 ### Repo-owned
 
@@ -351,7 +354,8 @@ These always remain local to the downstream repository:
 - Package name, description, runtime dependencies, and entry points
 - Deployment and release workflows
 - Product-specific VSCode tasks
-- Repo-specific ignore rules
+- Repo-specific tracked-root allowlist additions in `.gitignore`
+- Repo-specific binary or file-type additions in `.gitattributes`
 
 ### Sync policy
 
@@ -882,8 +886,11 @@ conflicting — the template dogfoods what the org requires.
 
 9. **No `Makefile`.** `qa.py` is cross-platform, VSCode tasks cover the IDE.
 
-10. **`.gitignore` and `.gitattributes` are not synced.** Too repo-specific.
-    Reference copies serve as starting points for new repos only.
+10. **`.gitignore` and `.gitattributes` follow org-standard baselines aligned
+    with `.github`.** In V1 they remain reference-managed rather than
+    auto-synced, but every repo starts from the shared templates. The baseline
+    `.gitignore` begins with `**`, and repo-specific tracked roots are added
+    explicitly.
 
 11. **Coverage summary renders in `$GITHUB_STEP_SUMMARY`.** Visible quality
     signal on every workflow run — not just pass/fail, but concrete numbers.
@@ -989,7 +996,9 @@ template. Here is the concrete migration path:
 
 - `README.md`, `LICENSE`
 - `src/`, `tests/`, `data/`, `maps/`, `templates/`
-- `.gitignore`, `.gitattributes` (repo-specific)
+- `.gitignore`, `.gitattributes` remain repo-local files after initial
+  adoption, but should preserve the org-standard structure and extend only in
+  repo-specific sections
 - Release and build workflows (resume-specific)
 - `pyproject.toml` `[project]` section (package metadata, runtime deps)
 

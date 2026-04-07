@@ -19,7 +19,7 @@ Downstream Python repos consume both layers through different mechanisms. The `.
 - **`qa.py`** -- local orchestrator that discovers and runs all checks (`--fix`, `--skip`).
 - **`setup.sh` / `setup.ps1`** -- cross-platform virtual-environment bootstrap (uv-aware).
 - **Reusable CI workflow** (`python-qa.yml`) -- separate job per check, callable from any repo.
-- **Reference configs** -- `pyproject.toml`, `.pre-commit-config.yaml`, VSCode tasks/settings/extensions, `.gitignore`, `.gitattributes`.
+- **Reference baselines** -- `pyproject.toml`, `.pre-commit-config.yaml`, VSCode tasks/settings/extensions, `.gitignore`, `.gitattributes`.
 - **Release-triggered sync** (`sync-downstream.yml`) -- opens PRs in downstream repos when this template is released.
 
 ## Quality Gates
@@ -102,12 +102,19 @@ The synced `.pre-commit-config.yaml` calls the same tools with the same configur
 
 When a new release is published on this repo, `sync-downstream.yml` opens a pull request in each downstream repo listed in `sync-manifest.json`, updating scripts and configs to the latest version.
 
+### Git Hygiene Standard
+
+The org-standard `.gitignore` uses an explicit allowlist model and starts with `**`, matching the control-plane style used in `nwarila/.github`. Repos must intentionally allow tracked roots and keep generated artifacts ignored even inside allowed paths.
+
+The org-standard `.gitattributes` is comment-rich and standardized, defining LF normalization and markdown diff behavior in a consistent format aligned with `nwarila/.github`.
+
 ## Quick Start for a New Repo
 
 1. Copy the reference configs from `reference/` into your repo (`.gitignore`, `.gitattributes`, `pyproject.toml`, `.pre-commit-config.yaml`, VSCode files).
-2. Customize `pyproject.toml` for your project (name, dependencies, entry points).
-3. Add the repo to `sync-manifest.json` in this template so future updates are synced automatically.
-4. Call the reusable workflow from your repo's CI configuration.
+2. Extend `.gitignore` by explicitly allowlisting any repo-specific tracked roots beyond the standard baseline.
+3. Customize `pyproject.toml` for your project (name, dependencies, entry points).
+4. Add the repo to `sync-manifest.json` in this template so future updates are synced automatically.
+5. Call the reusable workflow from your repo's CI configuration.
 
 ## Design Principles
 
@@ -115,6 +122,7 @@ When a new release is published on this repo, `sync-downstream.yml` opens a pull
 - **Scripts are standalone and stdlib-only.** Each check script uses only the Python standard library and shells out to the configured tools.
 - **pyproject.toml is the center of gravity.** All tool configuration lives in one file, not scattered across dotfiles.
 - **Cross-platform first.** Setup scripts and check scripts work on Linux, macOS, and Windows.
+- **Git hygiene is standardized.** `.gitignore` starts from an allowlist-first baseline, and `.gitattributes` stays clear and comment-rich.
 - **Opinionated defaults, documented escape hatches.** Sensible choices are made upfront; overrides are possible through standard tool configuration.
 
 ## License
