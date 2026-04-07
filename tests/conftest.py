@@ -76,13 +76,15 @@ def tmp_project(tmp_path: Path) -> Generator[Path, None, None]:
         textwrap.dedent("""\
             \"\"\"CLI entry point.\"\"\"
 
+            from __future__ import annotations
+
             import argparse
 
 
-            def main() -> None:
+            def main(argv: list[str] | None = None) -> None:
                 \"\"\"Run the CLI.\"\"\"
                 parser = argparse.ArgumentParser(description="Smoke CLI")
-                parser.parse_args()
+                parser.parse_args(argv)
 
 
             if __name__ == "__main__":
@@ -103,7 +105,7 @@ def tmp_project(tmp_path: Path) -> Generator[Path, None, None]:
 
             def test_main_runs() -> None:
                 \"\"\"Verify main() runs without error.\"\"\"
-                main()
+                main([])
         """)
     )
 
