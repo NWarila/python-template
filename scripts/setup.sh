@@ -40,7 +40,7 @@ else
             if awk '
                 /^\[project\.optional-dependencies\]/ { in_section=1; next }
                 /^\[/                                  { in_section=0 }
-                in_section && /^dev\s*=/               { found=1; exit }
+                in_section && /^[[:space:]]*dev[[:space:]]*=/ { found=1; exit }
                 END { exit !found }
             ' pyproject.toml 2>/dev/null; then
                 HAS_DEV_EXTRAS=true
