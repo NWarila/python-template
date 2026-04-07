@@ -12,9 +12,10 @@ import subprocess
 import sys
 import tomllib
 from pathlib import Path
+from typing import Any
 
 
-def _load_pyproject() -> dict[str, object]:
+def _load_pyproject() -> dict[str, Any]:
     path = Path("pyproject.toml")
     if not path.exists():
         return {}

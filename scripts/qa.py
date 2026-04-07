@@ -6,6 +6,7 @@
 Usage:
     python scripts/qa.py [--fix] [--skip name ...]
 """
+
 from __future__ import annotations
 
 import argparse
@@ -23,6 +24,7 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 # ---------------------------------------------------------------------------
 # pyproject.toml helpers (stdlib only, no tomllib on <3.11)
 # ---------------------------------------------------------------------------
+
 
 def _has_build_system() -> bool:
     """Return True if pyproject.toml contains a [build-system] section."""
@@ -44,6 +46,7 @@ def _has_build_system() -> bool:
 # Check execution
 # ---------------------------------------------------------------------------
 
+
 def _short_name(script_path: Path) -> str:
     """Derive the short check name from a script filename.
 
@@ -52,7 +55,7 @@ def _short_name(script_path: Path) -> str:
     """
     stem = script_path.stem  # e.g. "check_lint"
     if stem.startswith("check_"):
-        return stem[len("check_"):]
+        return stem[len("check_") :]
     return stem
 
 
@@ -79,6 +82,7 @@ def _run_check(
 # External tool helpers
 # ---------------------------------------------------------------------------
 
+
 def _run_external_tool(
     name: str,
     cmd: list[str],
@@ -96,14 +100,13 @@ def _run_external_tool(
 
 def _find_files(pattern: str) -> list[str]:
     """Glob for files relative to PROJECT_ROOT."""
-    return sorted(
-        glob.glob(pattern, root_dir=str(PROJECT_ROOT), recursive=True)
-    )
+    return sorted(glob.glob(pattern, root_dir=str(PROJECT_ROOT), recursive=True))
 
 
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
+
 
 def _print_summary(
     results: list[tuple[str, str, str]],
@@ -145,6 +148,7 @@ def _print_summary(
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run all local QA checks.")
@@ -199,22 +203,26 @@ def main() -> int:
     # shellcheck
     sh_files = _find_files("**/*.sh")
     if sh_files:
-        externals.append((
-            "shellcheck",
-            "shellcheck",
-            ["shellcheck", *sh_files],
-        ))
+        externals.append(
+            (
+                "shellcheck",
+                "shellcheck",
+                ["shellcheck", *sh_files],
+            )
+        )
     else:
         externals.append(("shellcheck", "shellcheck", None))
 
     # markdownlint-cli2
     md_files = _find_files("**/*.md")
     if md_files:
-        externals.append((
-            "markdownlint",
-            "markdownlint-cli2",
-            ["markdownlint-cli2", *md_files],
-        ))
+        externals.append(
+            (
+                "markdownlint",
+                "markdownlint-cli2",
+                ["markdownlint-cli2", *md_files],
+            )
+        )
     else:
         externals.append(("markdownlint", "markdownlint-cli2", None))
 

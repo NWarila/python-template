@@ -18,7 +18,7 @@ def tmp_project(tmp_path: Path) -> Generator[Path, None, None]:
         textwrap.dedent("""\
             [build-system]
             requires = ["setuptools>=75.0"]
-            build-backend = "setuptools.backends._legacy:_Backend"
+            build-backend = "setuptools.build_meta"
 
             [project]
             name = "smoke-project"
@@ -59,8 +59,9 @@ def tmp_project(tmp_path: Path) -> Generator[Path, None, None]:
             strict = true
 
             [tool.pytest.ini_options]
-            addopts = "-ra --import-mode=importlib --cov=smoke_project --cov-report=term-missing --cov-fail-under=90"
+            addopts = "-ra --import-mode=importlib --cov=src --cov-report=term-missing --cov-fail-under=90"
             testpaths = ["tests"]
+            pythonpath = ["src"]
 
             [tool.codespell]
             skip = ".venv,dist,*.egg-info,.git"
