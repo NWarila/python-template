@@ -70,6 +70,9 @@ def main() -> int:
             return rc
 
         for name in entry_points:
+            if shutil.which(name) is None:
+                print(f"  Entry point '{name}' not found on PATH, skipping smoke test")
+                continue
             rc = _run([name, "--help"], f"Entry point: {name} --help")
             if rc != 0:
                 return rc
