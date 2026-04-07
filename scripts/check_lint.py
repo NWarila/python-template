@@ -21,6 +21,15 @@ def _load_pyproject() -> dict[str, Any]:
         return tomllib.load(f)
 
 
+def _tool(name: str) -> str:
+    exe_dir = Path(sys.executable).resolve().parent
+    candidates = [exe_dir / name, exe_dir / f"{name}.exe"]
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return name
+
+
 def _run(cmd: list[str], label: str) -> int:
     print(f"\n--- {label} ---")
     result = subprocess.run(cmd)
@@ -39,11 +48,11 @@ def main() -> int:
     paths = args.paths or pyproject.get("tool", {}).get("ruff", {}).get("src", ["src"])
 
     if args.fix:
-        rc1 = _run(["ruff", "check", "--fix", *paths], "Ruff Fix")
-        rc2 = _run(["ruff", "format", *paths], "Ruff Format")
+        rc1 = _run([_tool("ruff"), "check", "--fix", *paths], "Ruff Fix")
+        rc2 = _run([_tool("ruff"), "format", *paths], "Ruff Format")
     else:
-        rc1 = _run(["ruff", "check", *paths], "Ruff Check")
-        rc2 = _run(["ruff", "format", "--check", *paths], "Ruff Format Check")
+        rc1 = _run([_tool("ruff"), "check", *paths], "Ruff Check")
+        rc2 = _run([_tool("ruff"), "format", "--check", *paths], "Ruff Format Check")
 
     return 1 if (rc1 or rc2) else 0
 

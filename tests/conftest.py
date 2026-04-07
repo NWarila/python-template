@@ -5,13 +5,12 @@ from __future__ import annotations
 import shutil
 import textwrap
 from pathlib import Path
-from typing import Generator
 
 import pytest
 
 
-@pytest.fixture()
-def tmp_project(tmp_path: Path) -> Generator[Path, None, None]:
+@pytest.fixture
+def tmp_project(tmp_path: Path) -> Path:
     """Create a minimal Python project with passing quality gates."""
     # pyproject.toml — minimal, all checks enabled
     (tmp_path / "pyproject.toml").write_text(
@@ -114,4 +113,4 @@ def tmp_project(tmp_path: Path) -> Generator[Path, None, None]:
     scripts_dst = tmp_path / "scripts"
     shutil.copytree(scripts_src, scripts_dst)
 
-    yield tmp_path
+    return tmp_path

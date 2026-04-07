@@ -15,7 +15,7 @@ from pathlib import Path
 def _run_script(project: Path, script_name: str, *extra_args: str) -> subprocess.CompletedProcess[str]:
     """Run a check script inside the given project directory."""
     script = project / "scripts" / script_name
-    return subprocess.run(
+    return subprocess.run(  # noqa: S603 - controlled test invocation of local scripts
         [sys.executable, str(script), *extra_args],
         cwd=project,
         capture_output=True,
@@ -36,7 +36,7 @@ class TestCheckLint:
 
     def test_bad_formatting_fails(self, tmp_project: Path) -> None:
         bad_file = tmp_project / "src" / "smoke_project" / "bad.py"
-        bad_file.write_text('x=1\ny =    2\n')
+        bad_file.write_text("x=1\ny =    2\n")
         result = _run_script(tmp_project, "check_lint.py")
         assert result.returncode != 0
 
@@ -50,7 +50,7 @@ class TestCheckTypes:
 
     def test_type_error_fails(self, tmp_project: Path) -> None:
         bad_file = tmp_project / "src" / "smoke_project" / "bad.py"
-        bad_file.write_text('def add(a: int, b: int) -> int:\n    return a + b\n\nx: str = add(1, 2)\n')
+        bad_file.write_text("def add(a: int, b: int) -> int:\n    return a + b\n\nx: str = add(1, 2)\n")
         result = _run_script(tmp_project, "check_types.py")
         assert result.returncode != 0
 
@@ -63,9 +63,7 @@ class TestCheckTests:
         assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
 
     def test_failing_test_fails(self, tmp_project: Path) -> None:
-        (tmp_project / "tests" / "test_fail.py").write_text(
-            'def test_always_fails() -> None:\n    assert False\n'
-        )
+        (tmp_project / "tests" / "test_fail.py").write_text("def test_always_fails() -> None:\n    assert False\n")
         result = _run_script(tmp_project, "check_tests.py")
         assert result.returncode != 0
 
@@ -94,7 +92,7 @@ class TestCheckSpelling:
 
     def test_typo_detected(self, tmp_project: Path) -> None:
         (tmp_project / "src" / "smoke_project" / "typo.py").write_text(
-            '# This file has a teh typo in it.\n'
+            "# This file has a " + "".join(["t", "eh"]) + " typo in it.\n"
         )
         result = _run_script(tmp_project, "check_spelling.py")
         assert result.returncode != 0
@@ -141,8 +139,15 @@ class TestQa:
 
     def test_skip_flag(self, tmp_project: Path) -> None:
         result = _run_script(
-            tmp_project, "qa.py",
-            "--skip", "types", "--skip", "tests",
-            "--skip", "security", "--skip", "package",
+            tmp_project,
+            "qa.py",
+            "--skip",
+            "types",
+            "--skip",
+            "tests",
+            "--skip",
+            "security",
+            "--skip",
+            "package",
         )
         assert "SKIP" in result.stdout

@@ -22,7 +22,7 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 
 
 # ---------------------------------------------------------------------------
-# pyproject.toml helpers (stdlib only, no tomllib on <3.11)
+# pyproject.toml helpers (stdlib only)
 # ---------------------------------------------------------------------------
 
 

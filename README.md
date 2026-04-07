@@ -8,10 +8,10 @@ This repo is the Python-specific layer of a two-layer governance model. For org-
 
 | Layer | Repo | Responsibility |
 |-------|------|----------------|
-| Org governance | `nwarila/.github` | Community health files, issue/PR templates, org-level CI, default labels |
+| Org governance | `nwarila/.github` | Community health files, issue/PR templates, baseline CI, workflow templates |
 | Python QA | `nwarila/python-template` | Check scripts, reusable workflow, VSCode configs, pre-commit config, environment setup |
 
-Downstream Python repos consume both layers automatically. The `.github` repo provides defaults via GitHub's built-in inheritance; this repo syncs scripts and configs via release-triggered pull requests.
+Downstream Python repos consume both layers through different mechanisms. The `.github` repo provides defaults via GitHub's built-in inheritance; this repo syncs scripts and configs through release-triggered pull requests.
 
 ## What This Repo Provides
 
@@ -87,9 +87,9 @@ Each quality gate runs as a separate job, providing clear pass/fail signals per 
 Developers run the same scripts that CI runs:
 
 ```bash
-python scripts/qa.py          # Run all checks
-python scripts/qa.py --fix    # Auto-fix where possible
-python scripts/qa.py --skip tests security   # Skip specific checks
+.venv/bin/python scripts/qa.py                    # Run all checks
+.venv/bin/python scripts/qa.py --fix              # Auto-fix where possible
+.venv/bin/python scripts/qa.py --skip tests security
 ```
 
 VSCode tasks are provided so every check is also available from the command palette.
@@ -112,7 +112,7 @@ When a new release is published on this repo, `sync-downstream.yml` opens a pull
 ## Design Principles
 
 - **Local must match CI.** The same scripts run in both environments; no surprise failures after push.
-- **Scripts are standalone and stdlib-only.** Each check script uses only the Python standard library, so it can bootstrap its own tool installation.
+- **Scripts are standalone and stdlib-only.** Each check script uses only the Python standard library and shells out to the configured tools.
 - **pyproject.toml is the center of gravity.** All tool configuration lives in one file, not scattered across dotfiles.
 - **Cross-platform first.** Setup scripts and check scripts work on Linux, macOS, and Windows.
 - **Opinionated defaults, documented escape hatches.** Sensible choices are made upfront; overrides are possible through standard tool configuration.

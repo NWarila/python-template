@@ -9,6 +9,7 @@ packages = []
 name = "python-template"
 version = "1.0.0"
 description = "Reusable Python quality-gate scripts, workflows, and reference configurations."
+readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 
@@ -18,6 +19,7 @@ dev = [
     "codespell",
     "mypy>=1.16",
     "pip-audit",
+    "pre-commit",
     "pytest",
     "pytest-cov",
     "ruff>=0.11",

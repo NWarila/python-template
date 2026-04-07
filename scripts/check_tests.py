@@ -12,6 +12,15 @@ import sys
 from pathlib import Path
 
 
+def _tool(name: str) -> str:
+    exe_dir = Path(sys.executable).resolve().parent
+    candidates = [exe_dir / name, exe_dir / f"{name}.exe"]
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return name
+
+
 def _run(cmd: list[str], label: str) -> int:
     print(f"\n--- {label} ---")
     result = subprocess.run(cmd)
@@ -61,7 +70,7 @@ def main() -> int:
 
     is_ci = os.environ.get("GITHUB_ACTIONS") == "true"
 
-    cmd = ["pytest"]
+    cmd = [_tool("pytest")]
     if is_ci:
         cmd.append("--cov-report=json:coverage.json")
 

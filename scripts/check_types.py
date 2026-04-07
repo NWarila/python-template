@@ -21,6 +21,15 @@ def _load_pyproject() -> dict[str, Any]:
         return tomllib.load(f)
 
 
+def _tool(name: str) -> str:
+    exe_dir = Path(sys.executable).resolve().parent
+    candidates = [exe_dir / name, exe_dir / f"{name}.exe"]
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return name
+
+
 def _run(cmd: list[str], label: str) -> int:
     print(f"\n--- {label} ---")
     result = subprocess.run(cmd)
@@ -37,7 +46,7 @@ def main() -> int:
     pyproject = _load_pyproject()
     paths = args.paths or pyproject.get("tool", {}).get("ruff", {}).get("src", ["src"])
 
-    return _run(["mypy", *paths], "Mypy")
+    return _run([_tool("mypy"), *paths], "Mypy")
 
 
 if __name__ == "__main__":

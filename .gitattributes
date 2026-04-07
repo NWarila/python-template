@@ -1,0 +1,17 @@
+# Normalize line endings for stable cross-platform diffs.
+* text=auto eol=lf
+
+# Markdown
+*.md text eol=lf diff=markdown
+
+# Data formats
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+*.jsonc text eol=lf
+
+# Code
+*.py text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=lf

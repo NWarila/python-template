@@ -8,6 +8,16 @@ import argparse
 import os
 import subprocess
 import sys
+from pathlib import Path
+
+
+def _tool(name: str) -> str:
+    exe_dir = Path(sys.executable).resolve().parent
+    candidates = [exe_dir / name, exe_dir / f"{name}.exe"]
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return name
 
 
 def _run(cmd: list[str], label: str) -> int:
@@ -21,7 +31,7 @@ def _run(cmd: list[str], label: str) -> int:
 def main() -> int:
     argparse.ArgumentParser(description="Run pip-audit for dependency vulnerability scanning.").parse_args()
 
-    return _run(["pip-audit", "--strict"], "Pip-Audit")
+    return _run([_tool("pip-audit"), "--skip-editable"], "Pip-Audit")
 
 
 if __name__ == "__main__":

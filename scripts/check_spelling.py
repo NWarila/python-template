@@ -8,6 +8,16 @@ import argparse
 import os
 import subprocess
 import sys
+from pathlib import Path
+
+
+def _tool(name: str) -> str:
+    exe_dir = Path(sys.executable).resolve().parent
+    candidates = [exe_dir / name, exe_dir / f"{name}.exe"]
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return name
 
 
 def _run(cmd: list[str], label: str) -> int:
@@ -23,7 +33,7 @@ def main() -> int:
     parser.add_argument("--fix", action="store_true", help="Auto-fix spelling mistakes")
     args = parser.parse_args()
 
-    cmd = ["codespell"]
+    cmd = [_tool("codespell")]
     if args.fix:
         cmd.append("--write-changes")
 
