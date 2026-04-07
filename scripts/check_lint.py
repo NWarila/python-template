@@ -12,7 +12,7 @@ import tomllib
 from pathlib import Path
 
 
-def _load_pyproject() -> dict:
+def _load_pyproject() -> dict[str, object]:
     path = Path("pyproject.toml")
     if not path.exists():
         return {}

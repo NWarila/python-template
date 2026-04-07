@@ -14,7 +14,7 @@ import tomllib
 from pathlib import Path
 
 
-def _load_pyproject() -> dict:
+def _load_pyproject() -> dict[str, object]:
     path = Path("pyproject.toml")
     if not path.exists():
         return {}
@@ -60,8 +60,8 @@ def main() -> int:
 
         dist_files = glob.glob("dist/*")
         if not dist_files:
-            msg = "::error::No dist files produced" if os.environ.get("GITHUB_ACTIONS") == "true" else "ERROR: No dist files produced"
-            print(msg)
+            is_ci = os.environ.get("GITHUB_ACTIONS") == "true"
+            print("::error::No dist files produced" if is_ci else "ERROR: No dist files produced")
             return 1
 
         rc = _run(["twine", "check", "--strict", *dist_files], "Twine Check")
