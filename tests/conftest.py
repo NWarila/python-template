@@ -24,6 +24,7 @@ def tmp_project(tmp_path: Path) -> Generator[Path, None, None]:
             name = "smoke-project"
             version = "0.1.0"
             description = "Minimal smoke-test project."
+            readme = "README.md"
             requires-python = ">=3.11"
             license = "MIT"
 
@@ -68,6 +69,9 @@ def tmp_project(tmp_path: Path) -> Generator[Path, None, None]:
         """)
     )
 
+    # README (required for twine --strict)
+    (tmp_path / "README.md").write_text("# Smoke Project\n\nMinimal test project.\n")
+
     # Source code
     src_dir = tmp_path / "src" / "smoke_project"
     src_dir.mkdir(parents=True)
@@ -85,10 +89,6 @@ def tmp_project(tmp_path: Path) -> Generator[Path, None, None]:
                 \"\"\"Run the CLI.\"\"\"
                 parser = argparse.ArgumentParser(description="Smoke CLI")
                 parser.parse_args(argv)
-
-
-            if __name__ == "__main__":
-                main()
         """)
     )
 
