@@ -1,0 +1,30 @@
+# Example CI workflow for a Python repo adopting nwarila/python-template.
+# Copy to .github/workflows/ci.yml and customize as needed.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-qa:
+    uses: nwarila/python-template/.github/workflows/python-qa.yml@v1
+    with:
+      python-min: "3.11"
+      python-max: "3.12"
+      # full-os-matrix: true       # default
+      # run-package-check: true    # default
+
+  # Add repo-specific jobs below. For example:
+  # build:
+  #   needs: [python-qa]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: echo "Build step here"

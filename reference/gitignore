@@ -1,0 +1,43 @@
+# Deny-all — every tracked file must be explicitly allowed.
+*
+
+# Git metadata
+!.gitignore
+!.gitattributes
+
+# Project configuration
+!pyproject.toml
+!LICENSE
+!README.md
+!.markdownlint-cli2.jsonc
+!.pre-commit-config.yaml
+
+# Source code
+!src/
+!src/**
+!tests/
+!tests/**
+
+# Scripts (managed by python-template)
+!scripts/
+!scripts/**
+
+# GitHub
+!.github/
+!.github/**
+
+# VSCode
+!.vscode/
+!.vscode/**
+
+# Ignore generated artifacts even if inside allowed directories
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+coverage.json
