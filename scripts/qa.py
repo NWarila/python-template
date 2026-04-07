@@ -127,8 +127,7 @@ def _print_summary(
     print(f"  {section_title}")
     print(bar)
     header = f"  {'Check':<{col_name}}  {'Result':<{col_status}}  {'Duration':<{col_dur}}"
-    dash = "\u2500"
-    sep = f"  {dash * col_name}  {dash * col_status}  {dash * col_dur}"
+    sep = f"  {'-' * col_name}  {'-' * col_status}  {'-' * col_dur}"
     print(header)
     print(sep)
     for name, status, dur in results:
