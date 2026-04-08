@@ -113,4 +113,8 @@ def tmp_project(tmp_path: Path) -> Path:
     scripts_dst = tmp_path / "scripts"
     shutil.copytree(scripts_src, scripts_dst)
 
+    # Also copy to .github/scripts/ (simulating the synced path in downstream repos)
+    gh_scripts_dst = tmp_path / ".github" / "scripts"
+    shutil.copytree(scripts_src, gh_scripts_dst)
+
     return tmp_path

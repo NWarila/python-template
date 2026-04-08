@@ -12,9 +12,11 @@ import sys
 from pathlib import Path
 
 
-def _run_script(project: Path, script_name: str, *extra_args: str) -> subprocess.CompletedProcess[str]:
+def _run_script(
+    project: Path, script_name: str, *extra_args: str, scripts_dir: str = "scripts"
+) -> subprocess.CompletedProcess[str]:
     """Run a check script inside the given project directory."""
-    script = project / "scripts" / script_name
+    script = project / scripts_dir / script_name
     return subprocess.run(  # noqa: S603 - controlled test invocation of local scripts
         [sys.executable, str(script), *extra_args],
         cwd=project,
@@ -151,3 +153,67 @@ class TestQa:
             "package",
         )
         assert "SKIP" in result.stdout
+
+
+class TestProjectRootWalkUp:
+    """Tests that scripts find PROJECT_ROOT from both scripts/ and .github/scripts/.
+
+    Before the fix, scripts assumed PROJECT_ROOT = SCRIPT_DIR.parent (one level
+    up).  This broke when running from .github/scripts/ (two levels deep) because
+    the parent resolved to .github/ instead of the repo root.  The walk-up logic
+    traverses upward until it finds pyproject.toml.
+    """
+
+    def test_qa_from_scripts_dir(self, tmp_project: Path) -> None:
+        """qa.py finds PROJECT_ROOT from the standard scripts/ location."""
+        result = _run_script(tmp_project, "qa.py", "--help")
+        assert result.returncode == 0
+
+    def test_qa_from_github_scripts_dir(self, tmp_project: Path) -> None:
+        """qa.py finds PROJECT_ROOT from the synced .github/scripts/ location."""
+        result = _run_script(tmp_project, "qa.py", "--help", scripts_dir=".github/scripts")
+        assert result.returncode == 0
+
+    def test_qa_discovers_checks_from_github_scripts(self, tmp_project: Path) -> None:
+        """qa.py discovers check_*.py siblings when running from .github/scripts/."""
+        result = _run_script(
+            tmp_project,
+            "qa.py",
+            "--skip", "lint",
+            "--skip", "types",
+            "--skip", "tests",
+            "--skip", "security",
+            "--skip", "spelling",
+            "--skip", "package",
+            scripts_dir=".github/scripts",
+        )
+        # All checks skipped = success; proves the script loaded and found pyproject.toml
+        assert result.returncode == 0
+        assert "SKIP" in result.stdout
+        assert "could not find pyproject.toml" not in result.stderr
+
+    def test_no_pyproject_toml_fails(self, tmp_path: Path) -> None:
+        """qa.py fails with a clear error when pyproject.toml is missing."""
+        scripts_dir = tmp_path / "deep" / "nested" / "scripts"
+        scripts_dir.mkdir(parents=True)
+        source_qa = Path(__file__).resolve().parent.parent / "scripts" / "qa.py"
+        (scripts_dir / "qa.py").write_text(source_qa.read_text())
+
+        result = subprocess.run(  # noqa: S603
+            [sys.executable, str(scripts_dir / "qa.py"), "--help"],
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode != 0
+        assert "could not find pyproject.toml" in result.stderr
+
+    def test_deeply_nested_scripts(self, tmp_project: Path) -> None:
+        """Walk-up works from an arbitrarily deep location."""
+        import shutil
+
+        deep = tmp_project / "a" / "b" / "c" / "scripts"
+        shutil.copytree(tmp_project / "scripts", deep)
+
+        result = _run_script(tmp_project, "qa.py", "--help", scripts_dir="a/b/c/scripts")
+        assert result.returncode == 0

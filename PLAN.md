@@ -969,6 +969,20 @@ conflicting — the template dogfoods what the org requires.
 
 21. **VSCode rulers at 120.** Matching ruff `line-length`. The previous 96/98
     rulers were resume-specific and are removed from the org standard.
+22. **Sync is pull-based, not push-based.** Each downstream repo owns a thin
+    workflow that calls `self-update.yml` as a reusable workflow. The template
+    publishes releases; consumers pull when ready. No cross-repo credentials,
+    no PATs, no push permissions. The original `sync-downstream.yml` required a
+    fine-grained PAT (`TEMPLATE_SYNC_PAT`) to clone and push to private
+    downstream repos, which was never configured and is bad practice for a
+    personal org.
+23. **PROJECT_ROOT is resolved by walking up to `pyproject.toml`, not by
+    assuming `SCRIPT_DIR.parent`.** Scripts can live at `scripts/` (one level
+    deep) or `.github/scripts/` (two levels deep). The old `SCRIPT_DIR.parent`
+    assumption resolved to `.github/` when running from the synced location,
+    breaking tool discovery and `cwd` for every subprocess call. The walk-up
+    pattern traverses parent directories until it finds `pyproject.toml`,
+    working from any depth. Applied to `qa.py`, `setup.sh`, and `setup.ps1`.
 
 ## Pilot Migration: `nwarila/resume`
 
