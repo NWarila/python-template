@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = []
+
+[project]
+name = "python-template"
+version = "1.0.0"
+description = "Reusable Python quality-gate scripts, workflows, and reference configurations."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "codespell",
+    "mypy>=1.16",
+    "pip-audit",
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "ruff>=0.11",
+    "twine",
+    "validate-pyproject",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+src = ["scripts", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "S", "SIM", "C4", "PT", "T20", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/**" = ["T20", "S603", "S607"]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["scripts", "tests"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --import-mode=importlib --cov-fail-under=90"
+testpaths = ["tests"]
+
+[tool.codespell]
+skip = ".venv,dist,.git,.mypy_cache,.ruff_cache,.pytest_cache,reference"

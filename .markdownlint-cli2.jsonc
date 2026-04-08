@@ -1,0 +1,14 @@
+// Managed by nwarila/python-template — do not edit manually.
+// Source: https://github.com/nwarila/python-template
+{
+  "config": {
+    "MD013": false,
+    "MD033": false,
+    "MD034": false,
+    "MD041": false,
+    "MD060": false
+  },
+  "ignores": [
+    ".venv/**"
+  ]
+}
