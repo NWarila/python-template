@@ -91,12 +91,12 @@ The reusable workflow runs each quality gate as a separate job and publishes a s
 
 ### Local Development
 
-Downstream repos run the synced `scripts/` directly:
+Downstream repos run the synced `.github/scripts/` directly:
 
 ```bash
-.venv/bin/python scripts/qa.py
-.venv/bin/python scripts/qa.py --fix
-.venv/bin/python scripts/qa.py --skip tests security
+.venv/bin/python .github/scripts/qa.py
+.venv/bin/python .github/scripts/qa.py --fix
+.venv/bin/python .github/scripts/qa.py --skip tests security
 ```
 
 VSCode tasks in `reference/tasks.json` expose the same checks in the editor.
@@ -107,7 +107,7 @@ The synced `.pre-commit-config.yaml` calls the same tools with the same `pyproje
 
 ### Sync
 
-When this repo publishes a release, `sync-downstream.yml` reads `sync-manifest.json` and opens PRs in downstream repos to update template-owned files such as `scripts/` and reference configs.
+When this repo publishes a release, `sync-downstream.yml` reads `sync-manifest.json` and opens PRs in downstream repos to update template-owned files such as `.github/scripts/` and reference configs.
 
 ## Self-Dogfooding Model
 
@@ -117,7 +117,7 @@ This repo tests the released form of the standard, not only the development sour
 2. When `scripts/` changes merge to `main`, `auto-release.yml` creates the next patch release.
 3. `self-update.yml` downloads the latest released scripts into `.github/scripts/` and updates `.github/scripts/.version`.
 4. `template-ci.yml` runs the checks from `.github/scripts/`, which mirrors what downstream repos receive from releases.
-5. `python-qa.yml` and `sync-downstream.yml` continue to use `scripts/` as the distributable source.
+5. `sync-downstream.yml` distributes the source `scripts/` tree into downstream `.github/scripts/`, and `python-qa.yml` executes that released path in the caller repo.
 
 This keeps the release pipeline exercised continuously and helps catch drift between source scripts and shipped scripts.
 
