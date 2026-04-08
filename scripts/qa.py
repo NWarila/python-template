@@ -4,7 +4,7 @@
 """Local QA orchestrator. Discovers and runs all check_*.py scripts.
 
 Usage:
-    python scripts/qa.py [--fix] [--skip name ...]
+    python path/to/qa.py [--fix] [--skip name ...]
 """
 
 from __future__ import annotations

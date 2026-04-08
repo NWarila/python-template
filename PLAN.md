@@ -419,9 +419,9 @@ changes are validated by the same mechanism downstream repos use.
    into `.github/scripts/` and opens a pull request.
 4. `template-ci.yml` runs all quality gates from `.github/scripts/` — the
    released copies — not from `scripts/` directly.
-5. The reusable workflow (`python-qa.yml`) and `sync-downstream.yml` continue
-   to reference `scripts/` because they operate on the source or distribute
-   it to downstream repos.
+5. `sync-downstream.yml` distributes the source `scripts/` tree into
+   downstream `.github/scripts/`, and the reusable workflow
+   (`python-qa.yml`) executes `.github/scripts/` in the caller repo.
 
 **Why this matters:**
 
@@ -816,7 +816,7 @@ on the listed downstream repos only. The downstream repo list is explicit in
 {
   "downstream_repos": ["nwarila/resume"],
   "files": [
-    { "src": "scripts/",                          "dest": "scripts/",                   "mode": "overwrite" },
+    { "src": "scripts/",                          "dest": ".github/scripts/",           "mode": "overwrite" },
     { "src": "reference/pre-commit-config.yaml",   "dest": ".pre-commit-config.yaml",    "mode": "overwrite" },
     { "src": "reference/markdownlint-cli2.jsonc",  "dest": ".markdownlint-cli2.jsonc",   "mode": "overwrite" },
     { "src": "reference/settings.json",            "dest": ".vscode/settings.json",      "mode": "overwrite" },
@@ -985,7 +985,7 @@ template. Here is the concrete migration path:
 
 ### Files to delete from resume
 
-- `.github/scripts/` — entire directory (replaced by synced `scripts/`)
+- Repo-specific `.github/scripts/` contents — replaced by synced template-managed `.github/scripts/`
 - `.github/actions/setup-python/` — replaced by the template's action or
   reusable workflow's built-in setup
 - Local copies of `check_lint.py`, `check_types.py`, etc. under `.github/`
@@ -994,7 +994,7 @@ template. Here is the concrete migration path:
 
 | Resume file | Replaced by |
 | --- | --- |
-| `.github/scripts/*.py` | `scripts/*.py` (synced from template) |
+| `.github/scripts/*.py` | Synced `.github/scripts/*.py` from template |
 | `.pre-commit-config.yaml` | Synced from template (generic, no `python-docx` mypy dep) |
 | `.vscode/settings.json` | Synced from template (rulers at 120, no resume-specific exclusions) |
 | `.vscode/extensions.json` | Synced from template |

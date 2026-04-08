@@ -42,11 +42,11 @@ jobs:
       - name: Setup environment
         shell: bash
         if: runner.os != 'Windows'
-        run: bash scripts/setup.sh
+        run: bash .github/scripts/setup.sh
       - name: Setup environment (Windows)
         shell: pwsh
         if: runner.os == 'Windows'
-        run: .\scripts\setup.ps1
+        run: .\.github\scripts\setup.ps1
       - name: Activate venv
         shell: bash
         if: runner.os != 'Windows'
@@ -56,7 +56,7 @@ jobs:
         if: runner.os == 'Windows'
         run: echo "${{ github.workspace }}\.venv\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Append
       - name: Run lint check
-        run: python scripts/check_lint.py
+        run: python .github/scripts/check_lint.py
 
   types:
     strategy:
@@ -76,11 +76,11 @@ jobs:
       - name: Setup environment
         shell: bash
         if: runner.os != 'Windows'
-        run: bash scripts/setup.sh
+        run: bash .github/scripts/setup.sh
       - name: Setup environment (Windows)
         shell: pwsh
         if: runner.os == 'Windows'
-        run: .\scripts\setup.ps1
+        run: .\.github\scripts\setup.ps1
       - name: Activate venv
         shell: bash
         if: runner.os != 'Windows'
@@ -90,7 +90,7 @@ jobs:
         if: runner.os == 'Windows'
         run: echo "${{ github.workspace }}\.venv\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Append
       - name: Run type check
-        run: python scripts/check_types.py
+        run: python .github/scripts/check_types.py
 
   tests:
     strategy:
@@ -110,11 +110,11 @@ jobs:
       - name: Setup environment
         shell: bash
         if: runner.os != 'Windows'
-        run: bash scripts/setup.sh
+        run: bash .github/scripts/setup.sh
       - name: Setup environment (Windows)
         shell: pwsh
         if: runner.os == 'Windows'
-        run: .\scripts\setup.ps1
+        run: .\.github\scripts\setup.ps1
       - name: Activate venv
         shell: bash
         if: runner.os != 'Windows'
@@ -124,7 +124,7 @@ jobs:
         if: runner.os == 'Windows'
         run: echo "${{ github.workspace }}\.venv\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Append
       - name: Run tests
-        run: python scripts/check_tests.py
+        run: python .github/scripts/check_tests.py
 
   security:
     runs-on: ubuntu-latest
@@ -138,12 +138,12 @@ jobs:
         uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
       - name: Setup environment
         shell: bash
-        run: bash scripts/setup.sh
+        run: bash .github/scripts/setup.sh
       - name: Activate venv
         shell: bash
         run: echo "${{ github.workspace }}/.venv/bin" >> "$GITHUB_PATH"
       - name: Run security check
-        run: python scripts/check_security.py
+        run: python .github/scripts/check_security.py
 
   spelling:
     runs-on: ubuntu-latest
@@ -157,12 +157,12 @@ jobs:
         uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
       - name: Setup environment
         shell: bash
-        run: bash scripts/setup.sh
+        run: bash .github/scripts/setup.sh
       - name: Activate venv
         shell: bash
         run: echo "${{ github.workspace }}/.venv/bin" >> "$GITHUB_PATH"
       - name: Run spelling check
-        run: python scripts/check_spelling.py
+        run: python .github/scripts/check_spelling.py
 
   package:
     if: inputs.run-package-check
@@ -177,12 +177,12 @@ jobs:
         uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
       - name: Setup environment
         shell: bash
-        run: bash scripts/setup.sh
+        run: bash .github/scripts/setup.sh
       - name: Activate venv
         shell: bash
         run: echo "${{ github.workspace }}/.venv/bin" >> "$GITHUB_PATH"
       - name: Run package check
-        run: python scripts/check_package.py
+        run: python .github/scripts/check_package.py
 
   ci-passed:
     if: always()
