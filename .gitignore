@@ -17,8 +17,6 @@
 # Allow the org-standard automation and reference directories.
 !/.github/
 !/.github/**
-!/actions/
-!/actions/**
 !/reference/
 !/reference/**
 !/scripts/

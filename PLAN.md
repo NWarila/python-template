@@ -105,12 +105,12 @@ Why this is the better fit:
 ```text
 nwarila/python-template
 ├── .github/
+│   ├── actions/
+│   │   └── setup-python/
+│   │       └── action.yml         # Small shared bootstrap action
 │   └── workflows/
 │       ├── python-qa.yml          # Reusable workflow for downstream repos
 │       └── template-ci.yml        # This repo's own CI
-├── actions/
-│   └── setup-python/
-│       └── action.yml             # Small shared bootstrap action
 ├── scripts/
 │   ├── check_lint.py
 │   ├── check_types.py

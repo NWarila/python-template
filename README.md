@@ -38,13 +38,13 @@ Downstream Python repos consume both layers through different mechanisms. The `.
 ```text
 python-template/
 ├── .github/
+│   ├── actions/
+│   │   └── setup-python/
+│   │       └── action.yml         # Composite action for Python + dependency setup
 │   └── workflows/
 │       ├── python-qa.yml          # Reusable CI workflow (called by downstream repos)
 │       ├── sync-downstream.yml    # Release-triggered sync to downstream repos
 │       └── template-ci.yml        # CI for this repo itself
-├── actions/
-│   └── setup-python/
-│       └── action.yml             # Composite action for Python + dependency setup
 ├── scripts/
 │   ├── check_lint.py              # ruff lint + format
 │   ├── check_types.py             # mypy
