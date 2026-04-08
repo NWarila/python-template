@@ -108,9 +108,15 @@ nwarila/python-template
 │   ├── actions/
 │   │   └── setup-python/
 │   │       └── action.yml         # Small shared bootstrap action
+│   ├── scripts/                   # Released script copies for self-dogfooding
+│   │   ├── .version               # Tracks which release these scripts came from
+│   │   └── (mirrors scripts/)
 │   └── workflows/
+│       ├── auto-release.yml       # Auto-creates a release when scripts/ changes
 │       ├── python-qa.yml          # Reusable workflow for downstream repos
-│       └── template-ci.yml        # This repo's own CI
+│       ├── self-update.yml        # Nightly: syncs .github/scripts/ from latest release
+│       ├── sync-downstream.yml    # Release-triggered sync to downstream repos
+│       └── template-ci.yml        # This repo's own CI (uses .github/scripts/)
 ├── scripts/
 │   ├── check_lint.py
 │   ├── check_types.py
@@ -394,6 +400,39 @@ The `.github` repository should provide:
 - A stable `ci-passed` aggregator job
 - A small bootstrap action for Python environment setup if still useful
 - The synced local scripts that implement the actual checks
+
+### Self-dogfooding model
+
+The template repo eats its own dog food by running CI against *released*
+scripts rather than the development source. This ensures that new script
+changes are validated by the same mechanism downstream repos use.
+
+**How it works:**
+
+1. `scripts/` is the development source for all check scripts and setup
+   scripts.
+2. When changes to `scripts/` are merged to `main`, `auto-release.yml`
+   automatically creates a new patch release (auto-incrementing from the
+   latest tag).
+3. A nightly scheduled workflow (`self-update.yml`) checks whether a new
+   release exists. When it detects one, it downloads the released scripts
+   into `.github/scripts/` and opens a pull request.
+4. `template-ci.yml` runs all quality gates from `.github/scripts/` — the
+   released copies — not from `scripts/` directly.
+5. The reusable workflow (`python-qa.yml`) and `sync-downstream.yml` continue
+   to reference `scripts/` because they operate on the source or distribute
+   it to downstream repos.
+
+**Why this matters:**
+
+- The template validates itself using the same artifacts it ships to consumers.
+- Script regressions are caught before downstream repos receive them.
+- The release-and-sync pipeline is exercised continuously, not only at
+  manually triggered milestones.
+
+**Bootstrap:** `.github/scripts/` is initially seeded from the current
+`scripts/` directory. After the first release and nightly cycle, it is kept
+in sync automatically.
 
 ### Default CI policy
 

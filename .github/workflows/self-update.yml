@@ -1,0 +1,93 @@
+name: Self Update
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Check for new release
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          LATEST=$(gh release view --json tagName -q .tagName 2>/dev/null || echo "")
+          CURRENT=$(cat .github/scripts/.version 2>/dev/null || echo "none")
+          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          if [ -n "$LATEST" ] && [ "$LATEST" != "$CURRENT" ]; then
+            echo "update=true" >> "$GITHUB_OUTPUT"
+            echo "New release detected: $LATEST (current: $CURRENT)"
+          else
+            echo "update=false" >> "$GITHUB_OUTPUT"
+            echo "No update needed (latest: ${LATEST:-none}, current: $CURRENT)"
+          fi
+
+      - name: Download scripts from release
+        if: steps.check.outputs.update == 'true'
+        shell: bash
+        run: |
+          TAG="${{ steps.check.outputs.latest }}"
+          git fetch origin tag "$TAG" --no-tags
+          mkdir -p .github/scripts
+          git archive "$TAG" -- scripts/ | tar -x --strip-components=1 -C .github/scripts/
+          echo "$TAG" > .github/scripts/.version
+          echo "Updated .github/scripts/ to $TAG"
+
+      - name: Create pull request
+        if: steps.check.outputs.update == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          TAG="${{ steps.check.outputs.latest }}"
+          BRANCH="self-update/${TAG}"
+
+          # Check if PR already exists for this release
+          EXISTING=$(gh pr list --head "$BRANCH" --json number -q '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$EXISTING" ]; then
+            echo "PR #${EXISTING} already exists for ${TAG}, skipping"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add .github/scripts/
+          git commit -m "chore: update dogfood scripts to ${TAG}"
+          git push -u origin "$BRANCH"
+
+          gh pr create \
+            --title "chore: update dogfood scripts to ${TAG}" \
+            --body "$(cat <<EOF
+## Self-update
+
+Updates \`.github/scripts/\` to match the released scripts from \`${TAG}\`.
+
+This PR was automatically created by the nightly self-update workflow.
+The template repo dogfoods its own released scripts for CI validation.
+
+### What changed
+
+The scripts in \`.github/scripts/\` are downloaded from the \`${TAG}\` release
+tag and replace the previous seed. These are the scripts that \`template-ci.yml\`
+uses to validate this repo — the same mechanism downstream repos use.
+
+### Note
+
+CI may not auto-trigger on this PR due to GitHub token limitations.
+If checks are not running, close and reopen the PR or push an empty commit.
+EOF
+          )"

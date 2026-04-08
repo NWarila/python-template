@@ -1,0 +1,41 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Determine next version
+        id: version
+        shell: bash
+        run: |
+          LATEST=$(git tag --sort=-v:refname --list 'v*' | head -1)
+          if [ -z "$LATEST" ]; then
+            echo "tag=v1.0.0" >> "$GITHUB_OUTPUT"
+          else
+            MAJOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f1)
+            MINOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f2)
+            PATCH=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f3)
+            echo "tag=v${MAJOR}.${MINOR}.$((PATCH + 1))" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Resolved next version: $(cat "$GITHUB_OUTPUT" | grep tag)"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes

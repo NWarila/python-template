@@ -27,12 +27,12 @@ runs:
     - name: Create venv and install package (Linux/macOS)
       if: runner.os != 'Windows'
       shell: bash
-      run: bash scripts/setup.sh
+      run: bash .github/scripts/setup.sh
 
     - name: Create venv and install package (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
-      run: .\scripts\setup.ps1
+      run: .\.github\scripts\setup.ps1
 
     - name: Activate venv for subsequent steps (Linux/macOS)
       if: runner.os != 'Windows'
