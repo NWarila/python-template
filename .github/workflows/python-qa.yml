@@ -129,7 +129,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.python == inputs.python-min
         uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
-          files: coverage.json
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
 
   security:
