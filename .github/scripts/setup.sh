@@ -4,7 +4,25 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+
+# Walk up from SCRIPT_DIR to find the repo root (where pyproject.toml lives).
+# This works whether the script is at scripts/ or .github/scripts/.
+if [ -n "${PROJECT_ROOT:-}" ]; then
+    : # Already set via env var
+else
+    _dir="$SCRIPT_DIR"
+    while [ "$_dir" != "/" ]; do
+        if [ -f "$_dir/pyproject.toml" ]; then
+            PROJECT_ROOT="$_dir"
+            break
+        fi
+        _dir="$(dirname "$_dir")"
+    done
+    if [ -z "${PROJECT_ROOT:-}" ]; then
+        echo "Error: could not find pyproject.toml above $SCRIPT_DIR" >&2
+        exit 1
+    fi
+fi
 
 echo "Project root: ${PROJECT_ROOT}"
 cd "$PROJECT_ROOT"

@@ -4,7 +4,7 @@
 """Local QA orchestrator. Discovers and runs all check_*.py scripts.
 
 Usage:
-    python scripts/qa.py [--fix] [--skip name ...]
+    python path/to/qa.py [--fix] [--skip name ...]
 """
 
 from __future__ import annotations
@@ -18,7 +18,20 @@ import time
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
+
+
+def _find_project_root(start: Path | None = None) -> Path:
+    """Walk up from *start* (default SCRIPT_DIR) to find pyproject.toml."""
+    d = start or SCRIPT_DIR
+    while d != d.parent:
+        if (d / "pyproject.toml").exists():
+            return d
+        d = d.parent
+    print(f"Error: could not find pyproject.toml above {d}", file=sys.stderr)
+    sys.exit(1)
+
+
+PROJECT_ROOT = _find_project_root()
 
 
 # ---------------------------------------------------------------------------
