@@ -69,25 +69,11 @@ jobs:
           git commit -m "chore: update dogfood scripts to ${TAG}"
           git push -u origin "$BRANCH"
 
+          BODY="## Self-update"
+          BODY="${BODY}"$'\n\n'"Updates \`.github/scripts/\` to match the released scripts from \`${TAG}\`."
+          BODY="${BODY}"$'\n\n'"This PR was automatically created by the nightly self-update workflow."
+          BODY="${BODY}"$'\n'"The template repo dogfoods its own released scripts for CI validation."
+
           gh pr create \
             --title "chore: update dogfood scripts to ${TAG}" \
-            --body "$(cat <<EOF
-## Self-update
-
-Updates \`.github/scripts/\` to match the released scripts from \`${TAG}\`.
-
-This PR was automatically created by the nightly self-update workflow.
-The template repo dogfoods its own released scripts for CI validation.
-
-### What changed
-
-The scripts in \`.github/scripts/\` are downloaded from the \`${TAG}\` release
-tag and replace the previous seed. These are the scripts that \`template-ci.yml\`
-uses to validate this repo — the same mechanism downstream repos use.
-
-### Note
-
-CI may not auto-trigger on this PR due to GitHub token limitations.
-If checks are not running, close and reopen the PR or push an empty commit.
-EOF
-          )"
+            --body "${BODY}"

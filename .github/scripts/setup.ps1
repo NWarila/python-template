@@ -3,7 +3,7 @@
 $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $PSCommandPath
-$ProjectRoot = Split-Path -Parent $ScriptDir
+$ProjectRoot = if ($env:PROJECT_ROOT) { $env:PROJECT_ROOT } else { Split-Path -Parent $ScriptDir }
 
 Write-Host "Project root: $ProjectRoot"
 Set-Location $ProjectRoot

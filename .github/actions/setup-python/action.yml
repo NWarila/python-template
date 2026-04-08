@@ -28,11 +28,15 @@ runs:
       if: runner.os != 'Windows'
       shell: bash
       run: bash .github/scripts/setup.sh
+      env:
+        PROJECT_ROOT: ${{ github.workspace }}
 
     - name: Create venv and install package (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
       run: .\.github\scripts\setup.ps1
+      env:
+        PROJECT_ROOT: ${{ github.workspace }}
 
     - name: Activate venv for subsequent steps (Linux/macOS)
       if: runner.os != 'Windows'
