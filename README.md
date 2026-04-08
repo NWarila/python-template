@@ -1,7 +1,7 @@
 # python-template
 
 [![CI](https://github.com/nwarila/python-template/actions/workflows/template-ci.yml/badge.svg)](https://github.com/nwarila/python-template/actions/workflows/template-ci.yml)
-[![Coverage](https://img.shields.io/endpoint?url=https://nwarila.github.io/python-template/coverage.json)](https://github.com/nwarila/python-template/actions/workflows/template-ci.yml)
+[![Coverage](https://codecov.io/gh/nwarila/python-template/graph/badge.svg)](https://codecov.io/gh/nwarila/python-template)
 [![Python](https://img.shields.io/badge/python-%E2%89%A53.11-3776ab?logo=python&logoColor=white)](https://www.python.org)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey)](https://github.com/nwarila/python-template)
 [![License](https://img.shields.io/github/license/nwarila/python-template)](LICENSE)
