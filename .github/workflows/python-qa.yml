@@ -21,7 +21,7 @@ on:
         default: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   lint:
@@ -125,6 +125,23 @@ jobs:
         run: echo "${{ github.workspace }}\.venv\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Append
       - name: Run tests
         run: python .github/scripts/check_tests.py
+      - name: Generate coverage badge data
+        if: matrix.os == 'ubuntu-latest' && matrix.python == inputs.python-min
+        shell: bash
+        run: |
+          COV=$(python -m coverage report --format=total 2>/dev/null || echo "0")
+          if [ "$COV" -ge 90 ] 2>/dev/null; then COLOR="brightgreen"
+          elif [ "$COV" -ge 70 ] 2>/dev/null; then COLOR="yellow"
+          else COLOR="red"; fi
+          mkdir -p badge
+          echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COV}%\",\"color\":\"${COLOR}\"}" > badge/coverage.json
+      - name: Upload coverage badge data
+        if: matrix.os == 'ubuntu-latest' && matrix.python == inputs.python-min
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: coverage-badge
+          path: badge/coverage.json
+          retention-days: 1
 
   security:
     runs-on: ubuntu-latest
@@ -183,6 +200,22 @@ jobs:
         run: echo "${{ github.workspace }}/.venv/bin" >> "$GITHUB_PATH"
       - name: Run package check
         run: python .github/scripts/check_package.py
+
+  coverage-badge:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    needs: [tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download coverage badge data
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: coverage-badge
+      - name: Deploy badge to GitHub Pages
+        uses: peaceiris/actions-gh-pages@47f197a2200bb9de68ba5f48fad1c088eb1c4a32 # v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          keep_files: true
 
   ci-passed:
     if: always()

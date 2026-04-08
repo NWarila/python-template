@@ -3,6 +3,10 @@
 # Also add a template-sync.yml workflow that calls self-update.yml via uses:
 # to receive automatic script and config updates via pull request.
 # See README.md "Template Sync" for the snippet.
+#
+# Coverage badge: enable GitHub Pages (Settings > Pages > Source: gh-pages)
+# and add to README:
+#   ![Coverage](https://img.shields.io/endpoint?url=https://<owner>.github.io/<repo>/coverage.json)
 name: CI
 
 on:
@@ -12,7 +16,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
