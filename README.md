@@ -21,7 +21,8 @@ Downstream Python repos consume both layers through different mechanisms. The `.
 
 ## What This Repo Provides
 
-- **Canonical QA scripts** in `scripts/` for linting, typing, tests, security, spelling, packaging, and local orchestration.
+- **Canonical QA scripts** in `scripts/` — thin Python wrappers around standard tools (ruff, mypy, pytest, pip-audit, codespell, build/twine). Each script is the single invocation point for its check — both CI workflows and VSCode tasks call the same script, guaranteeing identical behavior in both environments.
+- **Local orchestrator** (`qa.py`) — runs all checks in sequence with `--fix` and `--skip` flags, so developers get the same quality bar locally that CI enforces remotely.
 - **Sync manifest** (`sync-manifest.json`) defining source-to-destination file mappings for downstream repos.
 - **Reusable sync workflow** (`self-update.yml`) that downstream repos call via `uses:` to pull updates automatically.
 - **Composite setup action** in `.github/actions/setup-python/` for Python plus dependency bootstrap.
@@ -164,8 +165,9 @@ The org-standard `.gitattributes` is comment-rich and standardized, defining LF 
 
 ## Design Principles
 
-- **Local must match CI.** The same scripts define the quality bar in both environments.
-- **Scripts are standalone and stdlib-only.** Each check script shells out to configured tools without shared helper modules.
+- **Local must match CI.** Every quality check is a Python script. CI workflows and VSCode tasks both call the same script with the same flags — there is no separate "CI version" of any check. This eliminates drift between what passes locally and what passes in CI.
+- **Scripts are standalone and stdlib-only.** Each check script is self-contained with no shared helper modules and no dependencies beyond the standard library. This means any script can be copied, read, or debugged in isolation.
+- **Wrappers exist for consistency, not complexity.** Some scripts are thin (e.g., `check_security.py` just runs `pip-audit`). The wrapper isn't about adding logic — it's about ensuring the invocation is identical everywhere. Without them, check logic would split between workflow YAML and VSCode task definitions and inevitably diverge.
 - **`pyproject.toml` is the center of gravity.** Tool configuration stays centralized instead of spreading across dotfiles.
 - **Cross-platform first.** Setup scripts and QA scripts are designed for Linux, macOS, and Windows.
 - **Git hygiene is standardized.** `.gitignore` and `.gitattributes` align with the org baseline.
