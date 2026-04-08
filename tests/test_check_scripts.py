@@ -22,6 +22,16 @@ import scripts.check_types as check_types_mod
 from scripts.check_lint import _load_pyproject, _run, _tool
 
 
+def _capture_run(calls: list[Any]) -> Any:
+    """Return a fake _run that captures commands and returns 0."""
+
+    def fake(cmd: list[str], label: str) -> int:
+        calls.append(cmd)
+        return 0
+
+    return fake
+
+
 class TestTool:
     """Tests for the _tool() helper that locates CLI executables.
 
@@ -253,7 +263,7 @@ class TestCheckTypesMain:
         monkeypatch.setattr(check_types_mod, "_load_pyproject", lambda: {"tool": {"ruff": {"src": ["src"]}}})
 
         calls: list[Any] = []
-        monkeypatch.setattr(check_types_mod, "_run", lambda cmd, label: (calls.append(cmd), 0)[1])
+        monkeypatch.setattr(check_types_mod, "_run", _capture_run(calls))
         check_types_mod.main()
 
         assert "src" in calls[0]
@@ -263,7 +273,7 @@ class TestCheckTypesMain:
         monkeypatch.setattr(check_types_mod, "_load_pyproject", lambda: {})
 
         calls: list[Any] = []
-        monkeypatch.setattr(check_types_mod, "_run", lambda cmd, label: (calls.append(cmd), 0)[1])
+        monkeypatch.setattr(check_types_mod, "_run", _capture_run(calls))
         check_types_mod.main()
 
         assert "custom/" in calls[0]
@@ -279,7 +289,7 @@ class TestCheckSecurityMain:
         monkeypatch.setattr("sys.argv", ["check_security.py"])
 
         calls: list[Any] = []
-        monkeypatch.setattr(check_security_mod, "_run", lambda cmd, label: (calls.append(cmd), 0)[1])
+        monkeypatch.setattr(check_security_mod, "_run", _capture_run(calls))
         check_security_mod.main()
 
         assert "--skip-editable" in calls[0]
@@ -295,7 +305,7 @@ class TestCheckSpellingMain:
         monkeypatch.setattr("sys.argv", ["check_spelling.py"])
 
         calls: list[Any] = []
-        monkeypatch.setattr(check_spelling_mod, "_run", lambda cmd, label: (calls.append(cmd), 0)[1])
+        monkeypatch.setattr(check_spelling_mod, "_run", _capture_run(calls))
         check_spelling_mod.main()
 
         assert len(calls) == 1
@@ -304,7 +314,7 @@ class TestCheckSpellingMain:
         monkeypatch.setattr("sys.argv", ["check_spelling.py", "--fix"])
 
         calls: list[Any] = []
-        monkeypatch.setattr(check_spelling_mod, "_run", lambda cmd, label: (calls.append(cmd), 0)[1])
+        monkeypatch.setattr(check_spelling_mod, "_run", _capture_run(calls))
         check_spelling_mod.main()
 
         assert "--write-changes" in calls[0]
@@ -469,7 +479,7 @@ class TestCheckTestsMain:
         monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
 
         calls: list[Any] = []
-        monkeypatch.setattr(check_tests_mod, "_run", lambda cmd, label: (calls.append(cmd), 0)[1])
+        monkeypatch.setattr(check_tests_mod, "_run", _capture_run(calls))
         check_tests_mod.main()
 
         assert len(calls) == 1
@@ -479,7 +489,7 @@ class TestCheckTestsMain:
         monkeypatch.setenv("GITHUB_ACTIONS", "true")
 
         calls: list[Any] = []
-        monkeypatch.setattr(check_tests_mod, "_run", lambda cmd, label: (calls.append(cmd), 0)[1])
+        monkeypatch.setattr(check_tests_mod, "_run", _capture_run(calls))
         monkeypatch.setattr(check_tests_mod, "_write_coverage_summary", lambda: None)
         check_tests_mod.main()
 
