@@ -20,14 +20,14 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 
-def _find_project_root() -> Path:
-    """Walk up from SCRIPT_DIR to find the directory containing pyproject.toml."""
-    d = SCRIPT_DIR
+def _find_project_root(start: Path | None = None) -> Path:
+    """Walk up from *start* (default SCRIPT_DIR) to find pyproject.toml."""
+    d = start or SCRIPT_DIR
     while d != d.parent:
         if (d / "pyproject.toml").exists():
             return d
         d = d.parent
-    print(f"Error: could not find pyproject.toml above {SCRIPT_DIR}", file=sys.stderr)
+    print(f"Error: could not find pyproject.toml above {d}", file=sys.stderr)
     sys.exit(1)
 
 

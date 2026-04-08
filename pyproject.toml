@@ -45,8 +45,9 @@ strict = true
 files = ["scripts", "tests"]
 
 [tool.pytest.ini_options]
-addopts = "-ra --import-mode=importlib --cov-fail-under=90"
+addopts = "-ra --import-mode=importlib --cov=scripts --cov-report=term-missing --cov-fail-under=90"
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.codespell]
 skip = ".venv,dist,.git,.mypy_cache,.ruff_cache,.pytest_cache,reference"
