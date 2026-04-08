@@ -21,7 +21,7 @@ on:
         default: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   lint:
@@ -204,6 +204,8 @@ jobs:
   coverage-badge:
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     needs: [tests]
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Download coverage badge data

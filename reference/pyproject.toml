@@ -14,15 +14,15 @@ license = "MIT"
 [project.optional-dependencies]
 dev = [
     "build",
-    "codespell",
-    "mypy>=1.16",
+    "codespell==2.4.1",
+    "mypy==1.16.0",
     "pip-audit",
     "pre-commit",
     "pytest",
     "pytest-cov",
-    "ruff>=0.11",
+    "ruff==0.11.12",
     "twine",
-    "validate-pyproject",
+    "validate-pyproject==0.24",
 ]
 
 # [project.scripts]

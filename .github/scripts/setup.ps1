@@ -3,7 +3,26 @@
 $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $PSCommandPath
-$ProjectRoot = if ($env:PROJECT_ROOT) { $env:PROJECT_ROOT } else { Split-Path -Parent $ScriptDir }
+
+# Walk up from ScriptDir to find the repo root (where pyproject.toml lives).
+# This works whether the script is at scripts/ or .github/scripts/.
+if ($env:PROJECT_ROOT) {
+    $ProjectRoot = $env:PROJECT_ROOT
+} else {
+    $SearchDir = $ScriptDir
+    $ProjectRoot = $null
+    while ($SearchDir -and $SearchDir -ne (Split-Path -Parent $SearchDir)) {
+        if (Test-Path (Join-Path $SearchDir 'pyproject.toml')) {
+            $ProjectRoot = $SearchDir
+            break
+        }
+        $SearchDir = Split-Path -Parent $SearchDir
+    }
+    if (-not $ProjectRoot) {
+        Write-Error "Could not find pyproject.toml above $ScriptDir"
+        exit 1
+    }
+}
 
 Write-Host "Project root: $ProjectRoot"
 Set-Location $ProjectRoot

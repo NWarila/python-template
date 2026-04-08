@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -133,6 +133,8 @@ jobs:
   coverage-badge:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [tests]
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Download coverage badge data
