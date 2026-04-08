@@ -18,7 +18,20 @@ import time
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
+
+
+def _find_project_root() -> Path:
+    """Walk up from SCRIPT_DIR to find the directory containing pyproject.toml."""
+    d = SCRIPT_DIR
+    while d != d.parent:
+        if (d / "pyproject.toml").exists():
+            return d
+        d = d.parent
+    print(f"Error: could not find pyproject.toml above {SCRIPT_DIR}", file=sys.stderr)
+    sys.exit(1)
+
+
+PROJECT_ROOT = _find_project_root()
 
 
 # ---------------------------------------------------------------------------
