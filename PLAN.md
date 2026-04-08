@@ -114,8 +114,7 @@ nwarila/python-template
 │   └── workflows/
 │       ├── auto-release.yml       # Auto-creates a release when scripts/ changes
 │       ├── python-qa.yml          # Reusable workflow for downstream repos
-│       ├── self-update.yml        # Nightly: syncs .github/scripts/ from latest release
-│       ├── sync-downstream.yml    # Release-triggered sync to downstream repos
+│       ├── self-update.yml        # Nightly: pulls released files from latest release
 │       └── template-ci.yml        # This repo's own CI (uses .github/scripts/)
 ├── scripts/
 │   ├── check_lint.py
@@ -125,6 +124,7 @@ nwarila/python-template
 │   ├── check_spelling.py
 │   ├── check_package.py
 │   ├── qa.py
+│   ├── sync.py
 │   ├── setup.sh
 │   └── setup.ps1
 ├── reference/
@@ -137,7 +137,7 @@ nwarila/python-template
 │   ├── gitignore
 │   ├── gitattributes
 │   └── repo-ci.yml
-├── sync-manifest.json                # Source→dest mappings, ownership mode, merge strategy
+├── sync-manifest.json                # Source→dest mappings read by downstream sync workflows
 └── README.md
 ```
 
@@ -415,19 +415,17 @@ changes are validated by the same mechanism downstream repos use.
    automatically creates a new patch release (auto-incrementing from the
    latest tag).
 3. A nightly scheduled workflow (`self-update.yml`) checks whether a new
-   release exists. When it detects one, it downloads the released scripts
-   into `.github/scripts/` and opens a pull request.
+   release exists. When it detects one, it pulls the released files via the
+   same manifest-driven sync that downstream repos use, and opens a PR.
 4. `template-ci.yml` runs all quality gates from `.github/scripts/` — the
    released copies — not from `scripts/` directly.
-5. `sync-downstream.yml` distributes the source `scripts/` tree into
-   downstream `.github/scripts/`, and the reusable workflow
-   (`python-qa.yml`) executes `.github/scripts/` in the caller repo.
 
 **Why this matters:**
 
-- The template validates itself using the same artifacts it ships to consumers.
+- The template validates itself using the same artifacts and sync mechanism
+  it ships to consumers.
 - Script regressions are caught before downstream repos receive them.
-- The release-and-sync pipeline is exercised continuously, not only at
+- The release-and-pull pipeline is exercised continuously, not only at
   manually triggered milestones.
 
 **Bootstrap:** `.github/scripts/` is initially seeded from the current
@@ -563,8 +561,8 @@ Exit criteria:
 - [ ] Add `.github/workflows/template-ci.yml` to dogfood the template itself
 - [ ] Decide whether `actions/setup-python` remains the bootstrap action or is
       replaced by a more general `setup-project`
-- [ ] Add the machine-readable sync manifest and the release-triggered sync PR
-      workflow
+- [ ] Add the machine-readable sync manifest and the reference template-sync
+      workflow for downstream repos
 - [ ] Add `qa-gate` behavior as a stable aggregator job
 - [ ] Pin all third-party actions to full-length commit SHAs
 - [ ] Add dependency review to the template repo's own PR workflow
@@ -788,40 +786,34 @@ path was taken; they run against the activated venv regardless.
 
 ### Sync mechanism
 
-A workflow in `python-template` fires on `release: published`. It uses `gh` CLI
-with a fine-grained Personal Access Token (stored as a repository secret) to
-open PRs in downstream repos. The workflow:
+Sync is **pull-based**. Each downstream repo owns a `template-sync.yml`
+workflow that pulls released files from `nwarila/python-template`. The template
+publishes releases; downstream repos pull when ready. No cross-repo credentials,
+no push permissions, no coupling.
 
-1. Reads `sync-manifest.json` for file mappings and the downstream repo list
-2. For each downstream repo:
-   a. Clones the downstream repo
-   b. Creates a branch named `template-sync/v{release-tag}`
-   c. Copies fully-managed files (scripts, pre-commit, etc.)
-   d. Runs marker-preserving merge for `tasks.json` (a small inline Python
-      script finds `// #region` markers, replaces template-owned regions,
-      preserves repo-owned regions)
-   e. Updates managed-by-template headers with the new version
-   f. Opens a PR via `gh pr create` with a structured body:
-      - Release tag reference
-      - Link to release notes / changelog
-      - Migration notes if behavior changed
+Each downstream repo's sync workflow:
 
-The fine-grained PAT has `contents: write` and `pull_requests: write` scopes
-on the listed downstream repos only. The downstream repo list is explicit in
-`sync-manifest.json` — no topic-based discovery (too fragile).
+1. Checks for the latest release on `nwarila/python-template` (or accepts a
+   manual tag input)
+2. Clones the template at the release tag
+3. Runs `scripts/sync.py` from the template clone, which reads
+   `sync-manifest.json` for file mappings, copies fully-managed files, and
+   runs marker-preserving merge for files like `tasks.json` (`// #region`
+   markers delimit template-owned vs repo-owned sections)
+4. Opens a PR via `gh pr create` using the repo's own `GITHUB_TOKEN`
+
+`self-update.yml` supports `workflow_call`, so downstream repos call it as a
+reusable workflow via `uses: nwarila/python-template/.github/workflows/self-update.yml@v1`
+from a thin wrapper with their own schedule trigger.
 
 **`sync-manifest.json` schema:**
 
 ```json
 {
-  "downstream_repos": ["nwarila/resume"],
   "files": [
-    { "src": "scripts/",                          "dest": ".github/scripts/",           "mode": "overwrite" },
-    { "src": "reference/pre-commit-config.yaml",   "dest": ".pre-commit-config.yaml",    "mode": "overwrite" },
-    { "src": "reference/markdownlint-cli2.jsonc",  "dest": ".markdownlint-cli2.jsonc",   "mode": "overwrite" },
-    { "src": "reference/settings.json",            "dest": ".vscode/settings.json",      "mode": "overwrite" },
-    { "src": "reference/extensions.json",          "dest": ".vscode/extensions.json",    "mode": "overwrite" },
-    { "src": "reference/tasks.json",               "dest": ".vscode/tasks.json",         "mode": "marker-preserve" }
+    { "src": "scripts/check_lint.py",              "dest": ".github/scripts/check_lint.py",       "mode": "overwrite" },
+    { "src": "reference/pre-commit-config.yaml",   "dest": ".pre-commit-config.yaml",             "mode": "overwrite" },
+    { "src": "reference/tasks.json",               "dest": ".vscode/tasks.json",                  "mode": "marker-preserve" }
   ]
 }
 ```

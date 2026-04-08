@@ -2,78 +2,108 @@ name: Self Update
 
 on:
   schedule:
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to sync (blank = latest)"
+        required: false
+  workflow_call:
+    inputs:
+      tag:
+        description: "Release tag to sync (blank = latest)"
+        required: false
+        type: string
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  check-and-update:
+  sync:
+    name: Pull template updates
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
 
-      - name: Check for new release
-        id: check
+      - name: Determine target tag
+        id: tag
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
+          GH_TOKEN: ${{ github.token }}
         run: |
-          LATEST=$(gh release view --json tagName -q .tagName 2>/dev/null || echo "")
-          CURRENT=$(cat .github/scripts/.version 2>/dev/null || echo "none")
-          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
-          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
-          if [ -n "$LATEST" ] && [ "$LATEST" != "$CURRENT" ]; then
-            echo "update=true" >> "$GITHUB_OUTPUT"
-            echo "New release detected: $LATEST (current: $CURRENT)"
+          if [ -n "${{ inputs.tag }}" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
           else
-            echo "update=false" >> "$GITHUB_OUTPUT"
-            echo "No update needed (latest: ${LATEST:-none}, current: $CURRENT)"
+            tag=$(gh release view --repo nwarila/python-template --json tagName --jq '.tagName')
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Download scripts from release
-        if: steps.check.outputs.update == 'true'
-        shell: bash
+      - name: Check current version
+        id: current
         run: |
-          TAG="${{ steps.check.outputs.latest }}"
-          git fetch origin tag "$TAG" --no-tags
-          mkdir -p .github/scripts
-          git archive "$TAG" -- scripts/ | tar -x --strip-components=1 -C .github/scripts/
-          echo "$TAG" > .github/scripts/.version
-          echo "Updated .github/scripts/ to $TAG"
+          if [ -f .github/scripts/.version ]; then
+            echo "version=$(cat .github/scripts/.version)" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=none" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip if already current
+        id: skip
+        run: |
+          if [ "${{ steps.current.outputs.version }}" = "${{ steps.tag.outputs.tag }}" ]; then
+            echo "Already at ${{ steps.tag.outputs.tag }}, skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Updating from ${{ steps.current.outputs.version }} to ${{ steps.tag.outputs.tag }}"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download template release
+        if: steps.skip.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ steps.tag.outputs.tag }}"
+          git clone --depth 1 --branch "$tag" \
+            https://github.com/nwarila/python-template.git /tmp/template
+
+      - name: Sync files from manifest
+        if: steps.skip.outputs.skip == 'false'
+        run: |
+          python3 /tmp/template/scripts/sync.py /tmp/template .
+          echo "${{ steps.tag.outputs.tag }}" > .github/scripts/.version
 
       - name: Create pull request
-        if: steps.check.outputs.update == 'true'
+        if: steps.skip.outputs.skip == 'false'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
+          GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="${{ steps.check.outputs.latest }}"
-          BRANCH="self-update/${TAG}"
-
-          # Check if PR already exists for this release
-          EXISTING=$(gh pr list --head "$BRANCH" --json number -q '.[0].number' 2>/dev/null || echo "")
-          if [ -n "$EXISTING" ]; then
-            echo "PR #${EXISTING} already exists for ${TAG}, skipping"
-            exit 0
-          fi
+          tag="${{ steps.tag.outputs.tag }}"
+          branch="template-sync/${tag}"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
-          git add .github/scripts/
-          git commit -m "chore: update dogfood scripts to ${TAG}"
-          git push -u origin "$BRANCH"
 
-          BODY="## Self-update"
-          BODY="${BODY}"$'\n\n'"Updates \`.github/scripts/\` to match the released scripts from \`${TAG}\`."
-          BODY="${BODY}"$'\n\n'"This PR was automatically created by the nightly self-update workflow."
-          BODY="${BODY}"$'\n'"The template repo dogfoods its own released scripts for CI validation."
+          git checkout -b "$branch"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: sync template files from python-template@${tag}"
+          git push origin "$branch"
 
           gh pr create \
-            --title "chore: update dogfood scripts to ${TAG}" \
-            --body "${BODY}"
+            --title "chore: template sync ${tag}" \
+            --body "$(cat <<EOF
+          ## Template Sync: ${tag}
+
+          Pulls template-managed files from [python-template@${tag}](https://github.com/nwarila/python-template/releases/tag/${tag}).
+
+          Review the changes and merge when ready.
+
+          ---
+          Automated by [self-update](.github/workflows/self-update.yml)
+          EOF
+          )"

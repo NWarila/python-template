@@ -1,5 +1,8 @@
 # Example CI workflow for a Python repo adopting nwarila/python-template.
 # Copy to .github/workflows/ci.yml and customize as needed.
+# Also add a template-sync.yml workflow that calls self-update.yml via uses:
+# to receive automatic script and config updates via pull request.
+# See README.md "Template Sync" for the snippet.
 name: CI
 
 on:
