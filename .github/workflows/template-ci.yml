@@ -57,6 +57,25 @@ jobs:
           python-version: "3.11"
       - name: Run tests
         run: python .github/scripts/check_tests.py
+      - name: Extract coverage percentage
+        if: matrix.os == 'ubuntu-latest'
+        id: coverage
+        run: |
+          COVERAGE=$(python -m coverage report --format=total 2>/dev/null || echo "0")
+          echo "pct=$COVERAGE" >> "$GITHUB_OUTPUT"
+      - name: Upload coverage badge
+        if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        continue-on-error: true
+        uses: schneegans/dynamic-badges-action@e9a478b16159b4d31420099ba146cdc50f134483 # v1.7.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ vars.COVERAGE_GIST_ID }}
+          filename: coverage.json
+          label: coverage
+          message: ${{ steps.coverage.outputs.pct }}%
+          valColorRange: ${{ steps.coverage.outputs.pct }}
+          minColorRange: 50
+          maxColorRange: 100
 
   security:
     runs-on: ubuntu-latest
