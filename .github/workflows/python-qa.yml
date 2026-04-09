@@ -11,10 +11,10 @@ on:
         description: Maximum Python version
         type: string
         default: "3.14"
-      full-os-matrix:
-        description: Run full 3-OS matrix or Ubuntu-only
-        type: boolean
-        default: true
+      os-list:
+        description: 'JSON array of runners (default: Ubuntu + Windows)'
+        type: string
+        default: '["ubuntu-latest","windows-latest"]'
       run-package-check:
         description: Run the packaging gate
         type: boolean
@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.full-os-matrix && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest"]') }}
+        os: ${{ fromJSON(inputs.os-list) }}
         python: ["${{ inputs.python-min }}", "${{ inputs.python-max }}"]
     runs-on: ${{ matrix.os }}
     steps:
@@ -62,7 +62,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.full-os-matrix && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest"]') }}
+        os: ${{ fromJSON(inputs.os-list) }}
         python: ["${{ inputs.python-min }}", "${{ inputs.python-max }}"]
     runs-on: ${{ matrix.os }}
     steps:
@@ -96,7 +96,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.full-os-matrix && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest"]') }}
+        os: ${{ fromJSON(inputs.os-list) }}
         python: ["${{ inputs.python-min }}", "${{ inputs.python-max }}"]
     runs-on: ${{ matrix.os }}
     steps:

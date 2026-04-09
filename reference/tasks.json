@@ -91,6 +91,33 @@
       "problemMatcher": [],
       "group": "test"
     },
+    {
+      "label": "QA: ShellCheck",
+      "type": "shell",
+      "command": ".venv/bin/python",
+      "args": [".github/scripts/check_shellcheck.py"],
+      "windows": { "command": ".venv\\Scripts\\python.exe" },
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "QA: ActionLint",
+      "type": "shell",
+      "command": ".venv/bin/python",
+      "args": [".github/scripts/check_actionlint.py"],
+      "windows": { "command": ".venv\\Scripts\\python.exe" },
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "QA: Link Check",
+      "type": "shell",
+      "command": ".venv/bin/python",
+      "args": [".github/scripts/check_links.py"],
+      "windows": { "command": ".venv\\Scripts\\python.exe" },
+      "problemMatcher": [],
+      "group": "test"
+    },
     // #endregion Template: QA Individual
 
     // #region Template: QA Composite -----------------------------------------
