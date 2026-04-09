@@ -13,6 +13,7 @@
 !/README.md
 !/PLAN.md
 !/sync-manifest.json
+!/renovate.json
 
 # Allow the org-standard automation and reference directories.
 !/.github/

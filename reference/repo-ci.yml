@@ -23,12 +23,12 @@ concurrency:
 
 jobs:
   python-qa:
-    uses: nwarila/python-template/.github/workflows/python-qa.yml@v1
+    uses: nwarila/python-template/.github/workflows/python-qa.yml@v2
     with:
       python-min: "3.11"
       python-max: "3.12"
-      # full-os-matrix: true       # default
-      # run-package-check: true    # default
+      # os-list: '["ubuntu-latest","windows-latest"]'  # default
+      # run-package-check: true                        # default
 
   # Add repo-specific jobs below. For example:
   # build:

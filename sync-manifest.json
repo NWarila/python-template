@@ -13,6 +13,7 @@
     { "src": "scripts/check_links.py",              "dest": ".github/scripts/check_links.py",      "mode": "overwrite" },
     { "src": "scripts/setup.sh",                   "dest": ".github/scripts/setup.sh",            "mode": "overwrite" },
     { "src": "scripts/setup.ps1",                  "dest": ".github/scripts/setup.ps1",           "mode": "overwrite" },
+    { "src": "renovate.json",                       "dest": "renovate.json",                       "mode": "overwrite" },
     { "src": "reference/pre-commit-config.yaml",   "dest": ".pre-commit-config.yaml",             "mode": "overwrite" },
     { "src": "reference/markdownlint-cli2.jsonc",  "dest": ".markdownlint-cli2.jsonc",            "mode": "overwrite" },
     { "src": "reference/settings.json",            "dest": ".vscode/settings.json",               "mode": "overwrite" },
