@@ -1,4 +1,4 @@
-# Example CI workflow for a Python repo adopting nwarila/python-template.
+# Example CI workflow for a Python repo adopting NWarila/python-template.
 # Copy to .github/workflows/ci.yml and customize as needed.
 # Also add a template-sync.yml workflow that calls self-update.yml via uses:
 # to receive automatic script and config updates via pull request.
@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   python-qa:
-    uses: nwarila/python-template/.github/workflows/python-qa.yml@v1
+    uses: NWarila/python-template/.github/workflows/python-qa.yml@v1
     with:
       python-min: "3.11"
       python-max: "3.12"
