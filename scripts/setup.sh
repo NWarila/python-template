@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Managed by nwarila/python-template — do not edit manually.
-# Source: https://github.com/nwarila/python-template
+# Managed by NWarila/python-template — do not edit manually.
+# Source: https://github.com/NWarila/python-template
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

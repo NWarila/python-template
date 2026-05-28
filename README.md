@@ -1,21 +1,21 @@
 # python-template
 
-[![CI](https://github.com/nwarila/python-template/actions/workflows/template-ci.yml/badge.svg)](https://github.com/nwarila/python-template/actions/workflows/template-ci.yml)
-[![Coverage](https://codecov.io/gh/nwarila/python-template/graph/badge.svg)](https://codecov.io/gh/nwarila/python-template)
+[![CI](https://github.com/NWarila/python-template/actions/workflows/template-ci.yml/badge.svg)](https://github.com/NWarila/python-template/actions/workflows/template-ci.yml)
+[![Coverage](https://codecov.io/gh/NWarila/python-template/graph/badge.svg)](https://codecov.io/gh/NWarila/python-template)
 [![Python](https://img.shields.io/badge/python-%E2%89%A53.11-3776ab?logo=python&logoColor=white)](https://www.python.org)
-[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey)](https://github.com/nwarila/python-template)
-[![License](https://img.shields.io/github/license/nwarila/python-template)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey)](https://github.com/NWarila/python-template)
+[![License](https://img.shields.io/github/license/NWarila/python-template)](LICENSE)
 
-Reusable Python quality-gate scripts, a reusable CI workflow, and reference configurations that define a consistent developer experience across all Python repositories in the **nwarila** GitHub organization.
+Reusable Python quality-gate scripts, a reusable CI workflow, and reference configurations that define a consistent developer experience across all Python repositories in the **NWarila** GitHub account.
 
-This repo is the Python-specific layer of a two-layer governance model. For org-wide community health files, issue templates, and baseline CI, see [nwarila/.github](https://github.com/nwarila/.github).
+This repo is the Python-specific layer of a two-layer governance model. For org-wide community health files, issue templates, and baseline CI, see [NWarila/.github](https://github.com/NWarila/.github).
 
 ## Architecture
 
 | Layer | Repo | Responsibility |
 | --- | --- | --- |
-| Org governance | `nwarila/.github` | Community health files, issue and PR templates, baseline CI, workflow templates |
-| Python QA | `nwarila/python-template` | Check scripts, reusable workflow, setup action, sync manifest, reference configs |
+| Org governance | `NWarila/.github` | Community health files, issue and PR templates, baseline CI, workflow templates |
+| Python QA | `NWarila/python-template` | Check scripts, reusable workflow, setup action, sync manifest, reference configs |
 
 Downstream Python repos consume both layers through different mechanisms. The `.github` repo provides defaults through GitHub's built-in inheritance; this repo ships Python-specific scripts and configs through tagged releases that downstream repos pull on their own schedule.
 
@@ -92,7 +92,7 @@ Downstream repos copy `reference/repo-ci.yml` into `.github/workflows/ci.yml` an
 ```yaml
 jobs:
   python-qa:
-    uses: nwarila/python-template/.github/workflows/python-qa.yml@v1
+    uses: NWarila/python-template/.github/workflows/python-qa.yml@v1
 ```
 
 The reusable workflow runs each quality gate as a separate job and publishes a single stable `ci-passed` aggregator result.
@@ -129,7 +129,7 @@ permissions:
   pull-requests: write
 jobs:
   sync:
-    uses: nwarila/python-template/.github/workflows/self-update.yml@v1
+    uses: NWarila/python-template/.github/workflows/self-update.yml@v1
 ```
 
 The workflow checks for new releases, reads `sync-manifest.json` to know which files to copy and where, and opens a PR using the repo's own `GITHUB_TOKEN`. No PAT required.
@@ -151,9 +151,9 @@ Each repo controls its own update cadence — the template publishes releases, c
 
 ## Git Hygiene Standard
 
-The org-standard `.gitignore` uses an explicit allowlist model and starts with `**`, matching the control-plane style used in `nwarila/.github`. Repos intentionally allow tracked roots and keep generated artifacts ignored even inside allowed paths.
+The org-standard `.gitignore` uses an explicit allowlist model and starts with `**`, matching the control-plane style used in `NWarila/.github`. Repos intentionally allow tracked roots and keep generated artifacts ignored even inside allowed paths.
 
-The org-standard `.gitattributes` is comment-rich and standardized, defining LF normalization and markdown diff behavior in a format aligned with `nwarila/.github`.
+The org-standard `.gitattributes` is comment-rich and standardized, defining LF normalization and markdown diff behavior in a format aligned with `NWarila/.github`.
 
 ## Quick Start For A New Repo
 

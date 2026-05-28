@@ -2,7 +2,7 @@
 
 ## Mission
 
-Create `nwarila/python-template` and `nwarila/.github` as the two-layer
+Create `NWarila/python-template` and `NWarila/.github` as the two-layer
 standard for every Python repository in the organization.
 
 - `.github` owns organization-wide governance, repository policy, workflow
@@ -103,7 +103,7 @@ Why this is the better fit:
 ### Repository shape
 
 ```text
-nwarila/python-template
+NWarila/python-template
 ├── .github/
 │   ├── actions/
 │   │   └── setup-python/
@@ -621,7 +621,7 @@ Exit criteria:
       breaking changes
 - [ ] Add workflow templates in `.github` that call the shared reusable
       workflow, including the required `.properties.json` metadata files
-- [ ] Pilot the standard in `nwarila/resume`
+- [ ] Pilot the standard in `NWarila/resume`
 - [ ] Pilot the standard in at least one additional Python repo with a
       different profile
 - [ ] Cut `v1.0.0` and maintain the floating `v1` tag
@@ -787,13 +787,13 @@ path was taken; they run against the activated venv regardless.
 ### Sync mechanism
 
 Sync is **pull-based**. Each downstream repo owns a `template-sync.yml`
-workflow that pulls released files from `nwarila/python-template`. The template
+workflow that pulls released files from `NWarila/python-template`. The template
 publishes releases; downstream repos pull when ready. No cross-repo credentials,
 no push permissions, no coupling.
 
 Each downstream repo's sync workflow:
 
-1. Checks for the latest release on `nwarila/python-template` (or accepts a
+1. Checks for the latest release on `NWarila/python-template` (or accepts a
    manual tag input)
 2. Clones the template at the release tag
 3. Runs `scripts/sync.py` from the template clone, which reads
@@ -803,7 +803,7 @@ Each downstream repo's sync workflow:
 4. Opens a PR via `gh pr create` using the repo's own `GITHUB_TOKEN`
 
 `self-update.yml` supports `workflow_call`, so downstream repos call it as a
-reusable workflow via `uses: nwarila/python-template/.github/workflows/self-update.yml@v1`
+reusable workflow via `uses: NWarila/python-template/.github/workflows/self-update.yml@v1`
 from a thin wrapper with their own schedule trigger.
 
 **`sync-manifest.json` schema:**
@@ -823,8 +823,8 @@ from a thin wrapper with their own schedule trigger.
 Synced files carry a header comment identifying their source:
 
 ```python
-# Managed by nwarila/python-template — do not edit manually.
-# Source: https://github.com/nwarila/python-template
+# Managed by NWarila/python-template — do not edit manually.
+# Source: https://github.com/NWarila/python-template
 # Version: v1.2.3
 ```
 
@@ -836,7 +836,7 @@ top of the file in the same format.
 The org-standard `reference/settings.json` includes only universal settings:
 
 ```jsonc
-// Managed by nwarila/python-template — do not edit manually.
+// Managed by NWarila/python-template — do not edit manually.
 {
   // Python formatting
   "[python]": {
@@ -984,7 +984,7 @@ conflicting — the template dogfoods what the org requires.
     pattern traverses parent directories until it finds `pyproject.toml`,
     working from any depth. Applied to `qa.py`, `setup.sh`, and `setup.ps1`.
 
-## Pilot Migration: `nwarila/resume`
+## Pilot Migration: `NWarila/resume`
 
 The resume repo is the first adopter and the original motivation for this
 template. Here is the concrete migration path:
@@ -1016,7 +1016,7 @@ template. Here is the concrete migration path:
   ```yaml
   jobs:
     python-qa:
-      uses: nwarila/python-template/.github/workflows/python-qa.yml@v1
+      uses: NWarila/python-template/.github/workflows/python-qa.yml@v1
       with:
         python-min: "3.11"
         python-max: "3.12"

@@ -35,7 +35,7 @@ jobs:
           if [ -n "${{ inputs.tag }}" ]; then
             echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
           else
-            tag=$(gh release view --repo nwarila/python-template --json tagName --jq '.tagName')
+            tag=$(gh release view --repo NWarila/python-template --json tagName --jq '.tagName')
             echo "tag=$tag" >> "$GITHUB_OUTPUT"
           fi
 
@@ -66,7 +66,7 @@ jobs:
         run: |
           tag="${{ steps.tag.outputs.tag }}"
           git clone --depth 1 --branch "$tag" \
-            https://github.com/nwarila/python-template.git /tmp/template
+            https://github.com/NWarila/python-template.git /tmp/template
 
       - name: Sync files from manifest
         if: steps.skip.outputs.skip == 'false'
@@ -99,7 +99,7 @@ jobs:
             --body "$(cat <<EOF
           ## Template Sync: ${tag}
 
-          Pulls template-managed files from [python-template@${tag}](https://github.com/nwarila/python-template/releases/tag/${tag}).
+          Pulls template-managed files from [python-template@${tag}](https://github.com/NWarila/python-template/releases/tag/${tag}).
 
           Review the changes and merge when ready.
 

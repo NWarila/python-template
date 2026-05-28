@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Managed by nwarila/python-template — do not edit manually.
-# Source: https://github.com/nwarila/python-template
+# Managed by NWarila/python-template — do not edit manually.
+# Source: https://github.com/NWarila/python-template
 """Local QA orchestrator. Discovers and runs all check_*.py scripts.
 
 Usage:
