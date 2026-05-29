@@ -299,8 +299,9 @@ without first validating it in pilot repos.
 
 - The `uv` docs explicitly note that dependency groups are standardized but not
   yet supported by all tools.
-- Dependabot support exists, but Astral's own docs still call out incomplete
-  scenarios.
+- Dependency-bot support exists (the repo uses Renovate per ADR-0004, which
+  has documented `uv` integration), but Astral's own docs still call out
+  incomplete scenarios.
 - We should prove the workflow in at least two real repos before making it the
   mandatory baseline.
 
@@ -313,7 +314,8 @@ mandatory, pilot repos need to prove that the GitHub-native security surface is
 still good enough:
 
 - Dependency graph visibility
-- Dependabot alerts and updates
+- Dependabot security alerts (advisory visibility; version updates are handled
+  by Renovate per ADR-0004)
 - Dependency review on pull requests
 - Any needed lockfile or dependency-submission compatibility workarounds
 
@@ -458,8 +460,9 @@ acceptable and the cross-platform signal is part of the value proposition.
   semver contract.
 - Required job names must be unique across workflows to avoid ambiguous branch
   protection behavior.
-- Use Dependabot version updates for GitHub Actions and reusable workflow
-  references so SHA-pinned dependencies still move forward deliberately.
+- Use Renovate version updates (`.github/renovate.json5`, per ADR-0004) for
+  GitHub Actions and reusable workflow references so SHA-pinned dependencies
+  still move forward deliberately.
 - Do not rely on GitHub security alerts alone for SHA-pinned actions; GitHub's
   dependency-graph docs explicitly scope action alerts to semantic-versioned
   refs rather than SHA pins.
@@ -566,8 +569,9 @@ Exit criteria:
 - [ ] Add `qa-gate` behavior as a stable aggregator job
 - [ ] Pin all third-party actions to full-length commit SHAs
 - [ ] Add dependency review to the template repo's own PR workflow
-- [ ] Add Dependabot version updates for GitHub Actions and reusable workflow
-      references
+- [x] Add automated version updates for GitHub Actions and reusable workflow
+      references (done via Renovate `.github/renovate.json5`, per ADR-0004;
+      not Dependabot)
 - [ ] Decide whether SBOM export and provenance attestations land in V1 or
       immediately after V1
 
@@ -901,10 +905,14 @@ conflicting — the template dogfoods what the org requires.
    reusable workflow's `full-os-matrix` input (default `true`) so repos can
    opt into a leaner matrix if needed.
 
-5. **Dependabot, not Renovate.** Native to GitHub, zero extra setup, already
-   established in `.github` repo for Actions updates. Simpler and more
-   "native" in a GitHub-centric portfolio. If Dependabot's `uv` support has
-   gaps during pilot, that's useful signal for the `uv` decision itself.
+5. **Renovate, not Dependabot.** Superseded by ADR-0004: Renovate is the
+   org-wide standard, configured per-repo via `.github/renovate.json5`
+   (`config:recommended`, `github-actions` + `pep621` managers, digest
+   pinning). The earlier plan to use Dependabot — chosen for being GitHub-
+   native with zero extra setup — was reversed because Renovate gives
+   consistent dependency management across every repo, broader manager
+   coverage, and better lockfile support. `.github/dependabot.yml` was removed
+   in PR #27.
 
 6. **CodeQL lands now, owned by `.github`.** Independent of `python-template`
    V1 — it's a workflow template in `.github`, not a python-template concern.
