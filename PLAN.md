@@ -52,14 +52,16 @@ organization should be visible to recruiters before they read any source code.
 
 ## Current Reality
 
-The repository is still partway through extraction from the resume project.
+The shared CI surface is now implemented: the reusable Python QA workflow
+(`python-qa.yml`), `auto-release.yml`, `self-update.yml`, and `template-ci.yml`
+ship under `.github/workflows/`, backed by the QA scripts (`qa.py`,
+`check_*.py`) and the `setup-python` composite action. Remaining work is
+convergence cleanup, not initial extraction:
 
-- The checked-in scripts still assume they live under `.github/scripts`, while
-  the repo now stores them under `scripts/`.
-- Multiple scripts and reference files still hardcode resume-specific package
-  names, paths, build flows, and artifacts.
-- Only `actions/setup-python` exists today; the rest of the proposed shared CI
-  surface is still aspirational.
+- The QA scripts are currently duplicated under both `.github/scripts/` and
+  `scripts/`; the canonical location still needs to be settled.
+- Some scripts and reference files may still carry resume-specific package
+  names, paths, build flows, or artifacts to scrub.
 - The current plan assumes external composite actions will power CI, but that
   conflicts with the stated goal that local and CI should run the exact same
   downstream scripts.
