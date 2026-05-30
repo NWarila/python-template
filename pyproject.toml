@@ -17,7 +17,7 @@ license = "MIT"
 dev = [
     "build",
     "codespell==2.4.1",
-    "mypy==1.16.0",
+    "mypy==1.20.0",
     "pip-audit",
     "pre-commit",
     "pytest",
