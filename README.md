@@ -4,6 +4,7 @@
 [![Coverage](https://codecov.io/gh/NWarila/python-template/graph/badge.svg)](https://codecov.io/gh/NWarila/python-template)
 [![Python](https://img.shields.io/badge/python-%E2%89%A53.11-3776ab?logo=python&logoColor=white)](https://www.python.org)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey)](https://github.com/NWarila/python-template)
+[![Security Policy](https://img.shields.io/badge/security-policy-informational)](SECURITY.md)
 [![License](https://img.shields.io/github/license/NWarila/python-template)](LICENSE)
 
 Reusable Python quality-gate scripts, a reusable CI workflow, and reference configurations that define a consistent developer experience across all Python repositories in the **NWarila** GitHub account.

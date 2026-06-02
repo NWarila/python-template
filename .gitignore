@@ -12,7 +12,12 @@
 !/LICENSE
 !/README.md
 !/PLAN.md
+!/SECURITY.md
 !/sync-manifest.json
+
+# Allow docs directory and its contents.
+!/docs/
+!/docs/**
 
 # Allow the org-standard automation and reference directories.
 !/.github/
