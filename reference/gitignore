@@ -32,12 +32,6 @@
 !/docs/**
 
 # Add any repo-specific tracked roots below this line.
-# !/data/
-# !/data/**
-# !/assets/
-# !/assets/**
-# !/templates/
-# !/templates/**
 
 # Ignore generated artifacts even inside allowed directories.
 __pycache__/

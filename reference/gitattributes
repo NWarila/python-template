@@ -21,6 +21,3 @@
 .gitattributes text eol=lf
 
 # Add project-specific binary types below.
-# *.png binary
-# *.pdf binary
-# *.docx binary

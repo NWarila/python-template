@@ -22,7 +22,7 @@ Downstream Python repos consume both layers through different mechanisms. The `.
 
 ## What This Repo Provides
 
-- **Canonical QA scripts** in `scripts/` — thin Python wrappers around standard tools (ruff, mypy, pytest, pip-audit, codespell, build/twine). Each script is the single invocation point for its check — both CI workflows and VSCode tasks call the same script, guaranteeing identical behavior in both environments.
+- **Canonical QA scripts** in `scripts/` — thin Python wrappers around standard tools (ruff, mypy, pytest, pip-audit, codespell, build/twine). Each script is the source implementation for its check.
 - **Local orchestrator** (`qa.py`) — runs all checks in sequence with `--fix` and `--skip` flags, so developers get the same quality bar locally that CI enforces remotely.
 - **Sync manifest** (`sync-manifest.json`) defining source-to-destination file mappings for downstream repos.
 - **Reusable sync workflow** (`self-update.yml`) that downstream repos call via `uses:` to pull updates automatically.
@@ -51,8 +51,8 @@ python-template/
 |   |   `-- setup-python/
 |   |       `-- action.yml         # Composite action for Python + dependency setup
 |   |-- scripts/
-|   |   |-- .version               # Release tag currently pulled into this directory
-|   |   `-- ...                    # Copies of QA scripts pulled from the latest release
+|   |   |-- .version               # Deliberate release-copy metadata
+|   |   `-- ...                    # Released copies synced from scripts/
 |   `-- workflows/
 |       |-- auto-release.yml       # Creates a release when scripts/ changes land on main
 |       |-- python-qa.yml          # Reusable CI workflow for downstream repos
@@ -85,6 +85,15 @@ python-template/
 ```
 
 ## How Downstream Repos Use It
+
+### Script Ownership
+
+`scripts/` is the canonical source tree for QA scripts, setup scripts, and the sync helper. Edit scripts there first.
+`.github/scripts/` is the released copy used by this template's self-dogfooding CI and by downstream repositories after sync.
+
+The two trees should contain byte-identical copies of every script listed in `sync-manifest.json`. The only deliberate
+extra file is `.github/scripts/.version`, which records the release tag currently pulled into the released-copy tree.
+There is no `scripts/__init__.py`; scripts are standalone files, not an importable package.
 
 ### CI
 

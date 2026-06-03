@@ -58,8 +58,8 @@ ship under `.github/workflows/`, backed by the QA scripts (`qa.py`,
 `check_*.py`) and the `setup-python` composite action. Remaining work is
 convergence cleanup, not initial extraction:
 
-- The QA scripts are currently duplicated under both `.github/scripts/` and
-  `scripts/`; the canonical location still needs to be settled.
+- The QA script ownership is now settled: `scripts/` is the canonical source,
+  and `.github/scripts/` is the released/synced copy used for self-dogfooding.
 - Some scripts and reference files may still carry resume-specific package
   names, paths, build flows, or artifacts to scrub.
 - The current plan assumes external composite actions will power CI, but that
@@ -111,7 +111,7 @@ NWarila/python-template
 │   │   └── setup-python/
 │   │       └── action.yml         # Small shared bootstrap action
 │   ├── scripts/                   # Released script copies for self-dogfooding
-│   │   ├── .version               # Tracks which release these scripts came from
+│   │   ├── .version               # Release-copy metadata; only deliberate extra
 │   │   └── (mirrors scripts/)
 │   └── workflows/
 │       ├── auto-release.yml       # Auto-creates a release when scripts/ changes
@@ -410,6 +410,11 @@ The `.github` repository should provide:
 The template repo eats its own dog food by running CI against *released*
 scripts rather than the development source. This ensures that new script
 changes are validated by the same mechanism downstream repos use.
+
+`scripts/` is the canonical development source. `.github/scripts/` is the
+released copy and should differ only by `.github/scripts/.version`, which
+records the release tag currently pulled into that tree. Source scripts remain
+standalone files; `scripts/` is not an importable package.
 
 **How it works:**
 
