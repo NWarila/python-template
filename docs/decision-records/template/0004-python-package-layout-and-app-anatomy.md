@@ -130,7 +130,7 @@ None (current).
 
 ## Implementing PRs
 
-None yet. The follow-on package skeleton implementation should be listed here when it lands.
+- PT-M3: Ship the minimal generic `src/sample_app` package skeleton matching this ADR's eight-file anatomy.
 
 ## Related ADRs
 
@@ -145,3 +145,4 @@ None.
 | Date       | Change                                     | Reason                                            | Author/Role                         | Body-diff? |
 | ---------- | ------------------------------------------ | ------------------------------------------------- | ----------------------------------- | ---------- |
 | 2026-06-03 | Accepted the template package layout ADR.  | Document the package anatomy before implementation. | Portfolio maintainer / template ADR | Yes        |
+| 2026-06-03 | Landed the minimal generic package skeleton. | Record the implementing package anatomy landing.  | Implementation agent / template PR  | Yes        |

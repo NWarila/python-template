@@ -3,7 +3,14 @@ requires = ["setuptools>=75.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = []
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sample_app*"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
 
 [project]
 name = "python-template"
@@ -12,6 +19,10 @@ description = "Reusable Python quality-gate scripts, workflows, and reference co
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
+dependencies = [
+    "pydantic>=2.0,<3",
+    "pydantic-settings>=2.0,<3",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -30,7 +41,7 @@ dev = [
 [tool.ruff]
 target-version = "py311"
 line-length = 120
-src = ["scripts", "tests"]
+src = ["scripts", "src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "S", "SIM", "C4", "PT", "T20", "RUF"]
@@ -43,12 +54,17 @@ select = ["E", "F", "W", "I", "UP", "B", "S", "SIM", "C4", "PT", "T20", "RUF"]
 python_version = "3.11"
 strict = true
 explicit_package_bases = true
-files = ["scripts", "tests"]
+mypy_path = "src"
+files = ["scripts", "src", "tests"]
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_typed = true
 
 [tool.pytest.ini_options]
-addopts = "-ra --import-mode=importlib --cov=scripts --cov-report=term-missing --cov-fail-under=90"
+addopts = "-ra --import-mode=importlib --cov=scripts --cov=src --cov-report=term-missing --cov-fail-under=90"
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "src"]
 
 [tool.codespell]
 skip = ".venv,dist,.git,.mypy_cache,.ruff_cache,.pytest_cache,reference,.\\docs\\decision-records\\org\\*,./docs/decision-records/org/*"

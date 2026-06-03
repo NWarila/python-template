@@ -24,6 +24,7 @@ Downstream Python repos consume both layers through different mechanisms. The `.
 
 - **Canonical QA scripts** in `scripts/` — thin Python wrappers around standard tools (ruff, mypy, pytest, pip-audit, codespell, build/twine). Each script is the source implementation for its check.
 - **Local orchestrator** (`qa.py`) — runs all checks in sequence with `--fix` and `--skip` flags, so developers get the same quality bar locally that CI enforces remotely.
+- **Generic package skeleton** in `src/sample_app/` with typed contracts, settings, validation, exceptions, and a self-demo CLI.
 - **Sync manifest** (`sync-manifest.json`) defining source-to-destination file mappings for downstream repos.
 - **Reusable sync workflow** (`self-update.yml`) that downstream repos call via `uses:` to pull updates automatically.
 - **Composite setup action** in `.github/actions/setup-python/` for Python plus dependency bootstrap.
@@ -41,6 +42,49 @@ Downstream Python repos consume both layers through different mechanisms. The `.
 | Security | pip-audit | Environment and dependency metadata |
 | Spelling | codespell | `[tool.codespell]` in `pyproject.toml` |
 | Packaging | build + twine | `[build-system]` in `pyproject.toml` |
+
+## Use This Template
+
+The starter package is intentionally generic. Rename `sample_app` before adding product-specific code:
+
+```powershell
+$env:NEW_PKG = "your_pkg"
+git mv src/sample_app "src/$env:NEW_PKG"
+git mv tests/test_sample_app.py "tests/test_$($env:NEW_PKG).py"
+@'
+import os
+from pathlib import Path
+
+old = "sample_app"
+new = os.environ["NEW_PKG"]
+dist = new.replace("_", "-")
+paths = [
+    Path("pyproject.toml"),
+    Path("README.md"),
+    Path(f"tests/test_{new}.py"),
+    *sorted((Path("src") / new).rglob("*.py")),
+]
+
+for path in paths:
+    text = path.read_text(encoding="utf-8")
+    text = text.replace(old, new)
+    text = text.replace('name = "python-template"', f'name = "{dist}"')
+    path.write_text(text, encoding="utf-8")
+'@ | Set-Content -Encoding UTF8 rename_template_package.py
+python rename_template_package.py
+Remove-Item rename_template_package.py
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+python scripts/qa.py
+```
+
+That flow performs the required `git mv src/sample_app src/<your_pkg>` rename, updates imports and module strings, changes `[tool.setuptools.packages.find].include` to the new package name, changes `[project].name` to the hyphenated distribution name, refreshes the editable install, and runs the QA gates. If a consumer adds `[project.scripts]`, point each entry at `<your_pkg>.main:main` or another consumer-owned entry point.
+
+The self-demo remains available after the rename:
+
+```bash
+python -m your_pkg
+```
 
 ## Repository Structure
 
@@ -79,6 +123,16 @@ python-template/
 |   |-- sync.py                    # Manifest-driven file sync for template updates
 |   |-- setup.sh                   # Unix venv bootstrap
 |   `-- setup.ps1                  # Windows venv bootstrap
+|-- src/
+|   `-- sample_app/
+|       |-- __init__.py            # Curated public API and __all__
+|       |-- __main__.py            # python -m sample_app self-demo
+|       |-- py.typed               # PEP 561 typing marker
+|       |-- config.py              # Frozen pydantic-settings API
+|       |-- exceptions.py          # Typed What/Why/Fix exceptions
+|       |-- _contracts.py          # Frozen Pydantic contracts and Result shape
+|       |-- validators.py          # Pure validation helpers
+|       `-- main.py                # CLI entry point and worked sample function
 |-- sync-manifest.json             # Source-to-dest file mappings for downstream sync
 |-- pyproject.toml                 # Config for this repo
 `-- README.md
