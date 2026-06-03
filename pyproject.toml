@@ -51,4 +51,4 @@ testpaths = ["tests"]
 pythonpath = ["."]
 
 [tool.codespell]
-skip = ".venv,dist,.git,.mypy_cache,.ruff_cache,.pytest_cache,reference"
+skip = ".venv,dist,.git,.mypy_cache,.ruff_cache,.pytest_cache,reference,.\\docs\\decision-records\\org\\*,./docs/decision-records/org/*"

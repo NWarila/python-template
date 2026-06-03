@@ -548,7 +548,7 @@ Exit criteria:
       `[build-system]` sections) that each script will duplicate independently
       — no shared module
 - [ ] Remove every `.github/scripts` path assumption from the scripts
-- [ ] Remove every resume-specific path, package name, and CLI assumption
+- [x] Remove every resume-specific path, package name, and CLI assumption
 - [ ] Standardize script CLI contracts (`--fix`, `--paths`, `--skip`, config
       lookup, clean exit codes)
 - [ ] Make `qa.py` auto-discover `check_*.py` scripts and honor repo profile
@@ -595,7 +595,7 @@ Exit criteria:
       sections (setup, QA) and a clearly marked repo-specific region
 - [ ] Replace `reference/settings.json` and `reference/extensions.json` with
       Python-generic defaults
-- [ ] Strip resume-specific content from `.gitignore`, `.gitattributes`, and
+- [x] Strip resume-specific content from `.gitignore`, `.gitattributes`, and
       workflow examples
 - [ ] Remove `reference/build-resume.yml`,
       `reference/build-resumes-action.yml`, and `reference/release.yml`
