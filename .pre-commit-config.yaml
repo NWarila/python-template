@@ -1,3 +1,5 @@
+# Managed by NWarila/python-template — do not edit manually.
+# Source: https://github.com/NWarila/python-template
 default_install_hook_types: [pre-commit, pre-push]
 
 repos:
@@ -29,7 +31,7 @@ repos:
       - id: mypy
         args: ["--strict"]
         pass_filenames: false
-        entry: mypy scripts tests
+        entry: mypy src
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
