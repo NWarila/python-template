@@ -1,15 +1,20 @@
 # ADR-0002: Pull-Based, Manifest-Driven Template Sync
 
-| Field          | Value                                   |
-| -------------- | --------------------------------------- |
-| Status         | Accepted                                |
-| Date           | 2026-04-08                              |
-| Authors        | Nick Warila (@NWarila)                  |
-| Decision-maker | Nick Warila (sole portfolio maintainer) |
-| Consulted      | GitHub Actions reusable workflow docs, git submodule docs. |
-| Informed       | Downstream Python repositories.         |
-| Reversibility  | Medium                                  |
-| Review-by      | N/A (Accepted)                          |
+| Field            | Value                                                                        |
+| ---------------- | ---------------------------------------------------------------------------- |
+| ID               | ADR-0002                                                                     |
+| Scope            | Template                                                                     |
+| Status           | Accepted                                                                     |
+| Decision-subject | Template updates are synced by downstream-owned pull requests and manifests. |
+| Date accepted    | 2026-04-08                                                                   |
+| Date             | 2026-06-03                                                                   |
+| Last reviewed    | 2026-06-03                                                                   |
+| Authors          | Nick Warila (@NWarila)                                                       |
+| Decision-makers  | Nick Warila (sole portfolio maintainer)                                      |
+| Consulted        | GitHub Actions reusable workflow docs, git submodule docs.                   |
+| Informed         | Downstream Python repositories.                                              |
+| Reversibility    | Medium                                                                       |
+| Review-by        | 2026-11-30                                                                   |
 
 ## TL;DR
 
@@ -59,7 +64,7 @@ The template publishes a GitHub release whenever `scripts/` changes (via `auto-r
 
 - Good, because it uses native git tooling.
 - Bad, because submodules pin to a commit, not a release; there is no selective file mapping.
-- Bad, because downstream repos get no PR with migration notes — the submodule bump is one diff line.
+- Bad, because downstream repos get no PR with migration notes - the submodule bump is one diff line.
 - Bad, because submodule workflows are brittle across clone contexts.
 
 ### Option 3: Versioned Python package
@@ -81,7 +86,7 @@ The template publishes a GitHub release whenever `scripts/` changes (via `auto-r
 
 1. `sync-manifest.json` at the repository root defines all synced source-to-destination mappings.
 2. `self-update.yml` supports `workflow_call` so downstream repos can call it as a reusable workflow.
-3. The reusable workflow uses `GITHUB_TOKEN` (downstream repo's own token) for PR creation — no PAT.
+3. The reusable workflow uses `GITHUB_TOKEN` (downstream repo's own token) for PR creation - no PAT.
 4. `auto-release.yml` creates a new release when `scripts/` changes merge to `main`.
 5. This repo dogfoods the sync mechanism via a nightly scheduled run of `self-update.yml`.
 
@@ -121,5 +126,15 @@ None (current).
 
 ## Related ADRs
 
-- ADR-0001: QA scripts are standalone and stdlib-only
-- ADR-0004: Use Renovate for dependency updates (`.github/renovate.json5`)
+- [ADR-0001](0001-scripts-are-standalone-and-stdlib-only.md): QA scripts are standalone and stdlib-only.
+- [org ADR-0004 (Use Renovate for dependency updates)](../org/0004-use-renovate-for-dependency-updates.md): `.github/renovate.json5`.
+
+## Compliance Notes
+
+None.
+
+## Changelog
+
+| Date       | Change                                  | Reason                                             | Author/Role                         | Body-diff? |
+| ---------- | --------------------------------------- | -------------------------------------------------- | ----------------------------------- | ---------- |
+| 2026-06-03 | Reformatted to the living ADR schema.   | Satisfy the template ADR conformance gate.         | Portfolio maintainer / template ADR | Yes        |

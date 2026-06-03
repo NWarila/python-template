@@ -1,15 +1,20 @@
 # ADR-0001: QA Scripts Are Standalone and Stdlib-Only
 
-| Field          | Value                                   |
-| -------------- | --------------------------------------- |
-| Status         | Accepted                                |
-| Date           | 2026-04-08                              |
-| Authors        | Nick Warila (@NWarila)                  |
-| Decision-maker | Nick Warila (sole portfolio maintainer) |
-| Consulted      | Python packaging and tooling docs.      |
-| Informed       | Downstream Python repositories.         |
-| Reversibility  | Medium                                  |
-| Review-by      | N/A (Accepted)                          |
+| Field            | Value                                                                        |
+| ---------------- | ---------------------------------------------------------------------------- |
+| ID               | ADR-0001                                                                     |
+| Scope            | Template                                                                     |
+| Status           | Accepted                                                                     |
+| Decision-subject | QA scripts are standalone, stdlib-only, and independently syncable.          |
+| Date accepted    | 2026-04-08                                                                   |
+| Date             | 2026-06-03                                                                   |
+| Last reviewed    | 2026-06-03                                                                   |
+| Authors          | Nick Warila (@NWarila)                                                       |
+| Decision-makers  | Nick Warila (sole portfolio maintainer)                                      |
+| Consulted        | Python packaging and tooling docs.                                           |
+| Informed         | Downstream Python repositories.                                              |
+| Reversibility    | Medium                                                                       |
+| Review-by        | 2026-11-30                                                                   |
 
 ## TL;DR
 
@@ -33,7 +38,7 @@ Two design paths were considered:
 
 ## Considered Options
 
-1. Standalone, stdlib-only scripts — no shared module, no third-party deps.
+1. Standalone, stdlib-only scripts - no shared module, no third-party deps.
 2. Shared helper module (`_common.py`) imported by each check script.
 3. Template Python package installed as a dev dependency.
 
@@ -41,7 +46,7 @@ Two design paths were considered:
 
 Chosen option: **Option 1, standalone stdlib-only scripts.**
 
-Each `check_*.py` file reads `pyproject.toml` via `tomllib` (stdlib since 3.11), resolves paths, invokes the tool via `subprocess`, and reports results — all inline. The `~10-line config-reading pattern is duplicated across scripts rather than shared.
+Each `check_*.py` file reads `pyproject.toml` via `tomllib` (stdlib since 3.11), resolves paths, invokes the tool via `subprocess`, and reports results - all inline. The `~10-line` config-reading pattern is duplicated across scripts rather than shared.
 
 Scripts shell out to the actual tools (`ruff`, `mypy`, `pytest`, `pip-audit`, `codespell`, `build`, `twine`) and do not import them. This means the scripts carry zero non-stdlib import dependencies of their own.
 
@@ -69,7 +74,7 @@ Scripts shell out to the actual tools (`ruff`, `mypy`, `pytest`, `pip-audit`, `c
 ## Confirmation
 
 1. No `check_*.py` or `qa.py` file contains a cross-script import.
-2. The only stdlib module used for config reading is `tomllib` (Python 3.11+), consistent with the org's minimum supported version (ADR-0003).
+2. The only stdlib module used for config reading is `tomllib` (Python 3.11+), consistent with this template's minimum supported Python version ([ADR-0003](0003-python-minimum-version-floor.md)).
 3. `mypy` and `ruff` pass on all scripts in CI (`template-ci.yml`).
 
 ## Consequences
@@ -89,7 +94,7 @@ Scripts shell out to the actual tools (`ruff`, `mypy`, `pytest`, `pip-audit`, `c
 
 ## Assumptions
 
-1. Python 3.11 remains the minimum version for the org (see PLAN.md Resolved Decision 15).
+1. Python 3.11 remains the minimum version for this template (see PLAN.md Resolved Decision 15).
 2. The set of check scripts stays small enough that per-file duplication is manageable.
 
 ## Supersedes
@@ -107,5 +112,15 @@ None (current).
 
 ## Related ADRs
 
-- ADR-0002: Pull-based manifest-driven template sync
-- ADR-0003: Python minimum version floor
+- [ADR-0002](0002-pull-based-manifest-driven-template-sync.md): Pull-based manifest-driven template sync.
+- [ADR-0003](0003-python-minimum-version-floor.md): Python minimum version floor.
+
+## Compliance Notes
+
+None.
+
+## Changelog
+
+| Date       | Change                                  | Reason                                             | Author/Role                         | Body-diff? |
+| ---------- | --------------------------------------- | -------------------------------------------------- | ----------------------------------- | ---------- |
+| 2026-06-03 | Reformatted to the living ADR schema.   | Satisfy the template ADR conformance gate.         | Portfolio maintainer / template ADR | Yes        |
