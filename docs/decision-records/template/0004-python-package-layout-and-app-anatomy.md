@@ -145,4 +145,4 @@ None.
 | Date       | Change                                     | Reason                                            | Author/Role                         | Body-diff? |
 | ---------- | ------------------------------------------ | ------------------------------------------------- | ----------------------------------- | ---------- |
 | 2026-06-03 | Accepted the template package layout ADR.  | Document the package anatomy before implementation. | Portfolio maintainer / template ADR | Yes        |
-| 2026-06-03 | Landed the minimal generic package skeleton. | Record the implementing package anatomy landing.  | Implementation agent / template PR  | No         |
+| 2026-06-03 | Landed the minimal generic package skeleton. | Record the implementing package anatomy landing.  | Implementation agent / template PR  | Yes        |

@@ -41,6 +41,15 @@ def test_build_message_returns_invalid_result() -> None:
     assert "Input text is blank" in result.error
 
 
+def test_build_message_rejects_invalid_repeat() -> None:
+    result = build_message("Ada", repeat=0)
+
+    assert result.code is ResultCode.INVALID
+    assert result.value is None
+    assert result.error is not None
+    assert "Repeat count is not positive" in result.error
+
+
 def test_validators_accept_valid_values() -> None:
     assert validate_text("template") == "template"
     assert validate_repeat(1) == 1
