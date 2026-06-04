@@ -117,3 +117,27 @@ def test_release_drift_guard_fails_when_reusable_workflow_call_is_missing(tmp_pa
     errors = release_drift.collect_errors()
 
     assert ".github/workflows/self-update.yml@v1 does not declare on: workflow_call" in errors
+
+
+def test_declares_workflow_call_accepts_quoted_trigger_key() -> None:
+    workflow_text = 'name: Reusable\n\non:\n  "workflow_call":\n\njobs:\n  noop:\n    runs-on: ubuntu-latest\n'
+
+    assert release_drift.declares_workflow_call(workflow_text)
+
+
+def test_declares_workflow_call_ignores_nested_input_named_workflow_call() -> None:
+    workflow_text = (
+        "name: Manual\n"
+        "\n"
+        "on:\n"
+        "  workflow_dispatch:\n"
+        "    inputs:\n"
+        "      workflow_call:\n"
+        "        description: Not a reusable workflow trigger\n"
+        "\n"
+        "jobs:\n"
+        "  noop:\n"
+        "    runs-on: ubuntu-latest\n"
+    )
+
+    assert not release_drift.declares_workflow_call(workflow_text)

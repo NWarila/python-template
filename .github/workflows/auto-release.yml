@@ -1,3 +1,6 @@
+# Release hygiene is detection-only here: repo rulesets block GITHUB_TOKEN from
+# pushing to main or force-updating protected floating tags. Maintainers advance
+# vX/vX.Y and bump .github/scripts/.version manually when the drift guard fails.
 name: Auto Release
 
 on:
@@ -5,7 +8,6 @@ on:
     branches: [main]
     paths:
       - 'scripts/**'
-      - '!scripts/.version'
 
 permissions:
   contents: write
@@ -37,33 +39,6 @@ jobs:
           fi
           echo "Resolved next version: $(cat "$GITHUB_OUTPUT" | grep tag)"
 
-      - name: Configure release identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Stamp scripts version
-        shell: bash
-        run: |
-          tag="${{ steps.version.outputs.tag }}"
-          markers=(.github/scripts/.version)
-          if [ -f scripts/.version ]; then
-            markers+=(scripts/.version)
-          fi
-
-          for marker in "${markers[@]}"; do
-            mkdir -p "$(dirname "$marker")"
-            printf '%s\n' "$tag" > "$marker"
-          done
-
-          git add "${markers[@]}"
-          if git diff --cached --quiet; then
-            echo "Version markers already stamped at ${tag}."
-          else
-            git commit -m "chore(release): stamp scripts version ${tag}"
-            git push origin HEAD:main
-          fi
-
       - name: Create release tag
         shell: bash
         run: |
@@ -79,19 +54,3 @@ jobs:
             --verify-tag \
             --title "${{ steps.version.outputs.tag }}" \
             --generate-notes
-
-      - name: Update floating release tags
-        shell: bash
-        run: |
-          tag="${{ steps.version.outputs.tag }}"
-          if [[ ! "$tag" =~ ^v([0-9]+)\.([0-9]+)\.[0-9]+$ ]]; then
-            echo "::error::Release tag has an unsupported format: $tag"
-            exit 1
-          fi
-
-          major="v${BASH_REMATCH[1]}"
-          minor="v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
-
-          git tag --force "$major" "$tag"
-          git tag --force "$minor" "$tag"
-          git push --force origin "refs/tags/${major}" "refs/tags/${minor}"

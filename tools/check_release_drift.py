@@ -109,6 +109,21 @@ def mentions_workflow_call(value: str) -> bool:
     return re.search(r"(?<![A-Za-z0-9_-])workflow_call(?![A-Za-z0-9_-])", value) is not None
 
 
+def leading_spaces(value: str) -> int:
+    return len(value) - len(value.lstrip(" "))
+
+
+def is_workflow_call_event(value: str) -> bool:
+    event = value.removeprefix("-").strip()
+    if event.startswith(("'", '"')):
+        quote = event[0]
+        if not event.startswith(f"{quote}workflow_call{quote}"):
+            return False
+        suffix = event[len("'workflow_call'") :].lstrip()
+        return suffix == "" or suffix.startswith(":")
+    return event == "workflow_call" or event.startswith("workflow_call:")
+
+
 def declares_workflow_call(workflow_text: str) -> bool:
     lines = workflow_text.splitlines()
 
@@ -128,6 +143,7 @@ def declares_workflow_call(workflow_text: str) -> bool:
         if inline_value:
             return mentions_workflow_call(inline_value)
 
+        child_indent: int | None = None
         for child in lines[index + 1 :]:
             child_without_comment = strip_yaml_comment(child)
             if not child_without_comment.strip():
@@ -135,8 +151,14 @@ def declares_workflow_call(workflow_text: str) -> bool:
             if not child[:1].isspace():
                 return False
 
+            indent = leading_spaces(child_without_comment)
+            if child_indent is None:
+                child_indent = indent
+            if indent > child_indent:
+                continue
+
             child_value = child_without_comment.strip()
-            if child_value.startswith("workflow_call:") or child_value == "- workflow_call":
+            if is_workflow_call_event(child_value):
                 return True
             if mentions_workflow_call(child_value) and child_value.startswith(("[", "{")):
                 return True
@@ -177,8 +199,7 @@ def collect_errors() -> list[str]:
     else:
         if floating_v1_commit != latest_v1_commit:
             errors.append(
-                f"floating v1 resolves to {floating_v1_commit}, "
-                f"expected {latest_v1.name} at {latest_v1_commit}"
+                f"floating v1 resolves to {floating_v1_commit}, expected {latest_v1.name} at {latest_v1_commit}"
             )
 
     for workflow in REUSABLE_WORKFLOWS:
