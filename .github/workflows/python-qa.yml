@@ -12,7 +12,7 @@ on:
         type: string
         default: "3.14"
       full-os-matrix:
-        description: Run full 3-OS matrix or Ubuntu-only
+        description: Run the Ubuntu+Windows matrix or Ubuntu-only (macOS is never tested; see template ADR-0005)
         type: boolean
         default: true
       run-package-check:
@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.full-os-matrix && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest"]') }}
+        os: ${{ fromJSON(inputs.full-os-matrix && '["ubuntu-latest","windows-latest"]' || '["ubuntu-latest"]') }}
         python: ["${{ inputs.python-min }}", "${{ inputs.python-max }}"]
     runs-on: ${{ matrix.os }}
     steps:
@@ -62,7 +62,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.full-os-matrix && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest"]') }}
+        os: ${{ fromJSON(inputs.full-os-matrix && '["ubuntu-latest","windows-latest"]' || '["ubuntu-latest"]') }}
         python: ["${{ inputs.python-min }}", "${{ inputs.python-max }}"]
     runs-on: ${{ matrix.os }}
     steps:
@@ -96,7 +96,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.full-os-matrix && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest"]') }}
+        os: ${{ fromJSON(inputs.full-os-matrix && '["ubuntu-latest","windows-latest"]' || '["ubuntu-latest"]') }}
         python: ["${{ inputs.python-min }}", "${{ inputs.python-max }}"]
     runs-on: ${{ matrix.os }}
     steps:
