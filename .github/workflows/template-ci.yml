@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  branch_protection_rule:
+  schedule:
+    - cron: "31 6 * * 2"
 
 permissions:
   contents: read
@@ -24,6 +27,58 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+
+  governance:
+    name: Governance gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: git fetch --no-tags origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+      - name: Validate docs layout
+        run: python tools/check_docs_layout.py
+      - name: Validate attribution residue
+        run: python tools/check_ai_residue.py
+        env:
+          AI_RESIDUE_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+      - name: Validate ADR schema
+        run: python tools/check_adr_schema.py
+        env:
+          ADR_SCHEMA_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}
+      - name: Validate pin parity
+        run: python tools/check_pin_parity.py
+
+  repo-hygiene:
+    name: Org repo hygiene
+    permissions:
+      contents: read
+    uses: NWarila/.github/.github/workflows/reusable-repo-hygiene.yaml@5da716c68c90a86465d774f553d2f7161b60d616 # main
+    with:
+      source_ref: 5da716c68c90a86465d774f553d2f7161b60d616
+
+  codeql:
+    name: Org CodeQL
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    uses: NWarila/.github/.github/workflows/reusable-codeql.yaml@5da716c68c90a86465d774f553d2f7161b60d616 # main
+
+  scorecard:
+    name: Org OpenSSF Scorecard
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write
+      actions: read
+    uses: NWarila/.github/.github/workflows/reusable-scorecard.yaml@5da716c68c90a86465d774f553d2f7161b60d616 # main
 
   lint:
     runs-on: ubuntu-latest
@@ -122,13 +177,31 @@ jobs:
 
   ci-passed:
     if: always()
-    needs: [dependency-review, lint, types, tests, security, spelling, package, shellcheck, actionlint, markdownlint]
+    needs:
+      - dependency-review
+      - governance
+      - repo-hygiene
+      - codeql
+      - scorecard
+      - lint
+      - types
+      - tests
+      - security
+      - spelling
+      - package
+      - shellcheck
+      - actionlint
+      - markdownlint
     runs-on: ubuntu-latest
     steps:
       - name: Verify all checks passed
         shell: bash
         run: |
           echo "Dependency review: ${{ needs.dependency-review.result }}"
+          echo "Governance: ${{ needs.governance.result }}"
+          echo "Repo hygiene: ${{ needs.repo-hygiene.result }}"
+          echo "CodeQL: ${{ needs.codeql.result }}"
+          echo "Scorecard: ${{ needs.scorecard.result }}"
           echo "Lint: ${{ needs.lint.result }}"
           echo "Types: ${{ needs.types.result }}"
           echo "Tests: ${{ needs.tests.result }}"
@@ -140,6 +213,10 @@ jobs:
           echo "Markdownlint: ${{ needs.markdownlint.result }}"
 
           if [[ "${{ needs.dependency-review.result }}" != "success" && "${{ needs.dependency-review.result }}" != "skipped" ]] || \
+             [[ "${{ needs.governance.result }}" != "success" ]] || \
+             [[ "${{ needs.repo-hygiene.result }}" != "success" ]] || \
+             [[ "${{ needs.codeql.result }}" != "success" ]] || \
+             [[ "${{ needs.scorecard.result }}" != "success" && "${{ needs.scorecard.result }}" != "skipped" ]] || \
              [[ "${{ needs.lint.result }}" != "success" ]] || \
              [[ "${{ needs.types.result }}" != "success" ]] || \
              [[ "${{ needs.tests.result }}" != "success" ]] || \
