@@ -53,6 +53,8 @@ jobs:
           ADR_SCHEMA_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}
       - name: Validate pin parity
         run: python tools/check_pin_parity.py
+      - name: Validate release drift
+        run: python tools/check_release_drift.py
 
   repo-hygiene:
     name: Org repo hygiene

@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/**'
+      - '!scripts/.version'
 
 permissions:
   contents: write
@@ -21,21 +22,76 @@ jobs:
         id: version
         shell: bash
         run: |
-          LATEST=$(git tag --sort=-v:refname --list 'v*' | head -1)
+          LATEST=$(git tag --sort=-v:refname --list 'v[0-9]*.[0-9]*.[0-9]*' | head -1)
           if [ -z "$LATEST" ]; then
             echo "tag=v1.0.0" >> "$GITHUB_OUTPUT"
           else
-            MAJOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f1)
-            MINOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f2)
-            PATCH=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f3)
+            if [[ ! "$LATEST" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+              echo "::error::Latest release tag has an unsupported format: $LATEST"
+              exit 1
+            fi
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
             echo "tag=v${MAJOR}.${MINOR}.$((PATCH + 1))" >> "$GITHUB_OUTPUT"
           fi
           echo "Resolved next version: $(cat "$GITHUB_OUTPUT" | grep tag)"
+
+      - name: Configure release identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Stamp scripts version
+        shell: bash
+        run: |
+          tag="${{ steps.version.outputs.tag }}"
+          markers=(.github/scripts/.version)
+          if [ -f scripts/.version ]; then
+            markers+=(scripts/.version)
+          fi
+
+          for marker in "${markers[@]}"; do
+            mkdir -p "$(dirname "$marker")"
+            printf '%s\n' "$tag" > "$marker"
+          done
+
+          git add "${markers[@]}"
+          if git diff --cached --quiet; then
+            echo "Version markers already stamped at ${tag}."
+          else
+            git commit -m "chore(release): stamp scripts version ${tag}"
+            git push origin HEAD:main
+          fi
+
+      - name: Create release tag
+        shell: bash
+        run: |
+          tag="${{ steps.version.outputs.tag }}"
+          git tag "$tag" HEAD
+          git push origin "refs/tags/${tag}"
 
       - name: Create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "${{ steps.version.outputs.tag }}" \
+            --verify-tag \
             --title "${{ steps.version.outputs.tag }}" \
             --generate-notes
+
+      - name: Update floating release tags
+        shell: bash
+        run: |
+          tag="${{ steps.version.outputs.tag }}"
+          if [[ ! "$tag" =~ ^v([0-9]+)\.([0-9]+)\.[0-9]+$ ]]; then
+            echo "::error::Release tag has an unsupported format: $tag"
+            exit 1
+          fi
+
+          major="v${BASH_REMATCH[1]}"
+          minor="v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
+
+          git tag --force "$major" "$tag"
+          git tag --force "$minor" "$tag"
+          git push --force origin "refs/tags/${major}" "refs/tags/${minor}"
