@@ -26,6 +26,8 @@
 !/reference/**
 !/scripts/
 !/scripts/**
+!/tools/
+!/tools/**
 !/tests/
 !/tests/**
 

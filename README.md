@@ -211,6 +211,8 @@ Supported sync modes:
 4. This repo dogfoods the same workflow directly (nightly schedule).
 5. `template-ci.yml` runs the checks from `.github/scripts/`, validating the released artifacts.
 
+Floating `vX` / `vX.Y` advancement and `.github/scripts/.version` stamping are manual maintainer tasks: an admin re-points the floating tag and bumps `.version` through a normal PR. The drift guard in `template-ci.yml` fails CI when the latest release, floating tag, or marker drifts, prompting that manual fix. Full automation is blocked until the shelved GitHub App path in [github-token-limitation.md](docs/reference/github-token-limitation.md) exists, because `GITHUB_TOKEN` cannot push to main or force-update protected tags.
+
 Each repo controls its own update cadence — the template publishes releases, consumers pull when ready. No cross-repo credentials, no push permissions, no coupling.
 
 ## Git Hygiene Standard
