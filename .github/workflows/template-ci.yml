@@ -60,9 +60,9 @@ jobs:
     name: Org repo hygiene
     permissions:
       contents: read
-    uses: NWarila/.github/.github/workflows/reusable-repo-hygiene.yaml@5da716c68c90a86465d774f553d2f7161b60d616 # main
+    uses: NWarila/.github/.github/workflows/reusable-repo-hygiene.yaml@541fcec2ba7d64f16427754a2e1db23af5d1f1f8 # main
     with:
-      source_ref: 5da716c68c90a86465d774f553d2f7161b60d616
+      source_ref: 541fcec2ba7d64f16427754a2e1db23af5d1f1f8
 
   codeql:
     name: Org CodeQL
@@ -70,7 +70,7 @@ jobs:
       contents: read
       security-events: write
       actions: read
-    uses: NWarila/.github/.github/workflows/reusable-codeql.yaml@5da716c68c90a86465d774f553d2f7161b60d616 # main
+    uses: NWarila/.github/.github/workflows/reusable-codeql.yaml@541fcec2ba7d64f16427754a2e1db23af5d1f1f8 # main
 
   scorecard:
     name: Org OpenSSF Scorecard
@@ -80,7 +80,7 @@ jobs:
       security-events: write
       id-token: write
       actions: read
-    uses: NWarila/.github/.github/workflows/reusable-scorecard.yaml@5da716c68c90a86465d774f553d2f7161b60d616 # main
+    uses: NWarila/.github/.github/workflows/reusable-scorecard.yaml@541fcec2ba7d64f16427754a2e1db23af5d1f1f8 # main
 
   lint:
     runs-on: ubuntu-latest
