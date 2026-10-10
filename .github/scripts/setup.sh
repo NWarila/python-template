@@ -49,6 +49,7 @@ else
     python3 -m venv .venv
 
     .venv/bin/python -m pip install --upgrade pip
+    .venv/bin/python -m pip install --upgrade "setuptools>=83.0.0"
 
     # Check for [project.optional-dependencies] dev in pyproject.toml
     HAS_DEV_EXTRAS=false

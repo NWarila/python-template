@@ -57,6 +57,8 @@ else {
 
     & $VenvPython -m pip install --upgrade pip
     if ($LASTEXITCODE -ne 0) { throw 'Failed to upgrade pip.' }
+    & $VenvPython -m pip install --upgrade "setuptools>=83.0.0"
+    if ($LASTEXITCODE -ne 0) { throw 'Failed to upgrade setuptools.' }
 
     # Check for [project.optional-dependencies] dev in pyproject.toml
     $HasDevExtras = $false
